@@ -159,15 +159,15 @@
 
 \begin{center}\large
 \begin{tabular}{ll}
-Grupo nr. & 99 (preencher)
+Grupo nr. & 12
 \\\hline
-a11111 & Nome1 (preencher)
+a94913 & José Manuel Antunes de Carvalho
 \\
-a22222 & Nome2 (preencher)
+a97031 & Miguel Filipe Cidade da Silva 
 \\
-a33333 & Nome3 (preencher)
+a96351 & Luis Alberto Barreiro Araújo
 \\
-a44444 & Nome4 (preencher, se aplicável)
+a92926 & Marisa Ferreira Soares
 \end{tabular}
 \end{center}
 
@@ -1118,8 +1118,9 @@ simples e elegantes.
 \subsection*{Problema 1}
 Funções auxiliares pedidas:
 \begin{code}
-loop = undefined
-initial = undefined
+
+loop a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
+initial = ((1,1),0)
 wrap = p2
 \end{code}
 
