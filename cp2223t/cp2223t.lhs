@@ -1145,13 +1145,12 @@ funAux [] x = [[x]]
 funAux l (s,n) | p2(head(last(l))) < n = addLast (s,n) l
                | otherwise = l ++ [[(s,n)]]
 
-funAux2 :: String -> Integer -> String
-funAux2 "" _ = ""
-funAux2 (h:t) n | n > 0 = funAux2 t (n-1)
-                | otherwise = (h:t)
+teste21 = expDepth acm_tree == 7
+teste22 = length (expOps acm_tree) == 432
+teste23 = length (expLeaves acm_tree) == 1682
 
 fun :: [String] -> [[String]]
-fun = map (map (\(s,n) -> funAux2 s 4)) . foldl funAux [] . map (\s -> (s,contaEspacos s))
+fun = map (map (\(s,n) -> drop 4 s)) . foldl funAux [] . map (\s -> (s,contaEspacos s))
 
 gene = (id -|- (id >< fun)) . outP2
 \end{code}
