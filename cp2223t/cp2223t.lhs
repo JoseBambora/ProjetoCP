@@ -331,10 +331,10 @@ pública de \CP.}
 
 Precisamos pois da composição de |tax| com uma função de pós-processamento |post|,
 %
-\begin{spec}
+\begin{code}
 tudo :: [String] -> [[String]]
 tudo = post . tax
-\end{spec}
+\end{code}
 para obter o efeito que se mostra na tabela \ref{table:acmccs}.
 
 \begin{table}[ht!]
@@ -1127,11 +1127,42 @@ wrap = p2
 \subsection*{Problema 2}
 Gene de |tax|:
 \begin{code}
-gene = undefined
+
+outP2 :: [a] -> Either a (a,[a])
+outP2 [x] = i1 x
+outP2 (h:t) = i2 (h,t)
+
+contaEspacos :: String -> Integer
+contaEspacos "" = 0
+contaEspacos (' ':t) = 1 + contaEspacos t
+contaEspacos _ = 0
+
+addLast :: (String, Integer) -> [[(String,Integer)]] -> [[(String,Integer)]]
+addLast t l = (take (length l - 1) l) ++ [last(l) ++ [t]]
+
+funAux :: [[(String,Integer)]]-> (String, Integer)  -> [[(String,Integer)]]
+funAux [] x = [[x]]
+funAux l (s,n) | p2(head(last(l))) < n = addLast (s,n) l
+               | otherwise = l ++ [[(s,n)]]
+
+funAux2 :: String -> Integer -> String
+funAux2 "" _ = ""
+funAux2 (h:t) n | n > 0 = funAux2 t (n-1)
+                | otherwise = (h:t)
+
+fun :: [String] -> [[String]]
+fun = map (map (\(s,n) -> funAux2 s 4)) . foldl funAux [] . map (\s -> (s,contaEspacos s))
+
+gene = (id -|- (id >< fun)) . outP2
 \end{code}
 Função de pós-processamento:
 \begin{code}
-post = undefined
+
+auxPost :: (String,[[[String]]]) -> [[String]]
+auxPost (s,lis) = [s]:(((map(\l -> s:l)) . concat) lis)
+
+post = cataExp (either (singl . singl) auxPost)
+
 \end{code}
 
 \subsection*{Problema 3}
