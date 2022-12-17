@@ -1166,17 +1166,44 @@ post = cataExp (either (singl . singl) auxPost)
 
 \subsection*{Problema 3}
 \begin{code}
+
 squares = anaRose gsq
 
-gsq = undefined
+geraquadrados :: Square -> [Square]
+geraquadrados ((x,y),c) = [
+                           ((x+a,y+a),a),
+                           ((x,y+2*a),a), 
+                           ((x+a,y+2*a),a),
+                           ((x+2*a,y+2*a),a),
+                           ((x,y+a),a),
+                           ((x+2*a,y+a),a),
+                           ((x,y),a),
+                           ((x+a,y),a),
+                           ((x+2*a,y),a)]
+                where
+                  a = c/3
 
-rose2List = cataRose gr2l 
+gsq :: (Square,Int) -> (Square,[(Square,Int)])
+gsq t = (qc,map (\s -> (s,paux)) qv)
+      where
+          paux = (p2 t) - 1
+          l = geraquadrados (p1 t)
+          qc = head l
+          qv | paux /= -1 = tail l
+             | otherwise = []
 
-gr2l = undefined
+rose2List = cataRose gr2l
 
-carpets = undefined
+gr2l = cons . (id >< concat)
 
-present = undefined
+carpets :: Int -> [[Square]]
+carpets n = map (\n -> (sierpinski (squareExemplo,n))) [0..n]
+
+squareExemplo = ((0.0,0.0),32.0)
+
+present ::[[Square]] -> IO [()]
+present = sequence . map(\l -> do {(drawSq l); await;})
+
 \end{code}
 
 \subsection*{Problema 4}
