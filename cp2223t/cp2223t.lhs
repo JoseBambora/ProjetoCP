@@ -1220,8 +1220,9 @@ funCgene arg = case lu of
     t = p2 arg
     lu = uncurry List.lookup ((p1 >< id) arg)
     esq = p1 e
-
-cgene = undefined
+  
+cgene :: (Num b, Eq a) => Either () ((a, b), [(a, b)]) -> [(a, b)] 
+cgene = either (nil) (funCgene)
 
 \end{code}
 Geração dos jogos da fase de grupos:
