@@ -1210,15 +1210,45 @@ present = sequence . map(\l -> do {(drawSq l); await;})
 \subsubsection*{Versão não probabilística}
 Gene de |consolidate'|:
 \begin{code}
+
+funCgene :: (Eq a, Num b) => ((a,b),[(a, b)]) -> [(a, b)]
+funCgene arg = case lu of
+                  Nothing -> cons arg
+                  Just n -> (esq, (p2 e) + n) : (filter (\tuplo -> (p1 tuplo) /= esq) t)
+  where
+    e = p1 arg
+    t = p2 arg
+    lu = uncurry List.lookup ((p1 >< id) arg)
+    esq = p1 e
+
 cgene = undefined
+
 \end{code}
 Geração dos jogos da fase de grupos:
 \begin{code}
-pairup = undefined
 
-matchResult = undefined
+pairup [] = []
+pairup (x:xs) = (map(\t -> (x,t)) xs) ++ pairup xs
 
-glt = undefined
+getpontuacao r e = case r of
+                      Nothing -> 1
+                      Just t -> if t == e then 3
+                                else 0
+
+matchResult f p = [(e1,pontos1),(e2,pontos2)]
+  where
+    e1 = p1 p
+    e2 = p2 p
+    result = f p
+    pontos1 = getpontuacao result e1
+    pontos2 = getpontuacao result e2
+
+glt [x] = i1 x
+glt l = i2 ((split (take n) (drop n)) l)
+    where
+      n = div (length l) 2
+
+
 \end{code}
 \subsubsection*{Versão probabilística}
 \begin{code}
