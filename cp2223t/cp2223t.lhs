@@ -1277,22 +1277,24 @@ getpontuacao2 r = case r of
                       Nothing -> ("",1)
                       Just t -> (t,3)
 
-empates :: [Match] -> [(Team,Integer)]-> [(Team,Integer)]
-empates  _ [] = []
-empates ((t1,t2):t) ((_,1):xs)  = (t1,1):(t2,1) : empates t xs
-empates ((t1,t2):t) ((x,3):xs) = (x,3) : (perdeu,0) : empates t xs
-    where 
-      perdeu = if t1 /= x then t1
-               else t2
+auxEmpates :: (Match,(Team,Integer)) -> [(Team,Integer)]
+auxEmpates ((e1,e2),(_,1)) = [(e1,1),(e2,1)]
+auxEmpates ((e1,e2),(t,3)) | t == e1 = [(e1,3),(e2,0)]
+                           | otherwise = [(e1,0),(e2,3)]
+
+empates :: [Match] -> [(Team,Integer)] -> [(Team,Integer)]
+empates l1 l2 =  cataList (either (nil) (conc . (auxEmpates >< id ))) zipL
+  where
+    zipL = zip l1 l2
 
 pmatchResult :: (Dist [Maybe Team],[Match]) -> Dist [Team]
-pmatchResult (resultados,partidas) = mapD (best 2 . consolidate. empates partidas . map (getpontuacao2)) resultados
+pmatchResult (resultados,partidas) = mapD (best 2 . consolidate . empates partidas . map (getpontuacao2)) resultados
 
 pgroupWinners :: (Match -> Dist (Maybe Team)) -> [Match] -> Dist [Team]
 pgroupWinners f = pmatchResult . split (sequence . map (\m -> (f m))) (id)
 
-gteste = (psimulateGroupStage . genGroupStageMatches) (take 3 groups)
-
+gteste = (psimulateGroupStage . genGroupStageMatches) (groups)
+teste4 = pgroupWinners pgsCriteria (head teste4pro)
 \end{code}
 
 %----------------- Índice remissivo (exige makeindex) -------------------------%
