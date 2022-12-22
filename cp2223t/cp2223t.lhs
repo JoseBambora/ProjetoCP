@@ -1253,12 +1253,46 @@ glt l = i2 ((split (take n) (drop n)) l)
 \end{code}
 \subsubsection*{Versão probabilística}
 \begin{code}
-pinitKnockoutStage = undefined
+
+teste4pro :: [[Match]]
+teste4pro = [[("Portugal","France"),("Brazil","Argentina"),("Portugal","Brazil"),("France","Argentina"),("Portugal","Argentina"),("Brazil","France")]]
+
+createDist :: Team -> Dist (LTree Team)
+createDist t = D [(Leaf t, 1)]
+
+createFork :: LTree Team -> LTree Team -> LTree Team
+createFork e d = Fork (e,d)
+
+tupleDist :: (Dist (LTree Team),Dist (LTree Team)) -> Dist (LTree Team)
+tupleDist (x,y) = joinWith createFork x y
+
+initAux :: LTree Team -> Dist (LTree Team)
+initAux = cataLTree (either (createDist) (tupleDist))
+
+pinitKnockoutStage :: [[Team]] -> Dist (LTree Team)
+pinitKnockoutStage =  initAux . initKnockoutStage
+
+getpontuacao2 :: Maybe Team -> (Team,Integer)
+getpontuacao2 r = case r of
+                      Nothing -> ("",1)
+                      Just t -> (t,3)
+
+empates :: [Match] -> [(Team,Integer)]-> [(Team,Integer)]
+empates  _ [] = []
+empates ((t1,t2):t) ((_,1):xs)  = (t1,1):(t2,1) : empates t xs
+empates ((t1,t2):t) ((x,3):xs) = (x,3) : (perdeu,0) : empates t xs
+    where 
+      perdeu = if t1 /= x then t1
+               else t2
+
+pmatchResult :: (Dist [Maybe Team],[Match]) -> Dist [Team]
+pmatchResult (resultados,partidas) = mapD (best 2 . consolidate. empates partidas . map (getpontuacao2)) resultados
 
 pgroupWinners :: (Match -> Dist (Maybe Team)) -> [Match] -> Dist [Team]
-pgroupWinners = undefined
+pgroupWinners f = pmatchResult . split (sequence . map (\m -> (f m))) (id)
 
-pmatchResult = undefined
+gteste = (psimulateGroupStage . genGroupStageMatches) (take 3 groups)
+
 \end{code}
 
 %----------------- Índice remissivo (exige makeindex) -------------------------%
