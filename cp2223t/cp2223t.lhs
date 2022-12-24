@@ -1272,28 +1272,24 @@ initAux = cataLTree (either (createDist) (tupleDist))
 pinitKnockoutStage :: [[Team]] -> Dist (LTree Team)
 pinitKnockoutStage =  initAux . initKnockoutStage
 
-getpontuacao2 :: Maybe Team -> (Team,Integer)
-getpontuacao2 r = case r of
-                      Nothing -> ("",1)
-                      Just t -> (t,3)
+auxgetPoints :: (Match,Maybe Team) -> [(Team,Integer)]
+auxgetPoints ((e1,e2),r) = [(e1,po1),(e2,po2)]
+  where
+    po1 = getpontuacao r e1
+    po2 = getpontuacao r e2
 
-auxEmpates :: (Match,(Team,Integer)) -> [(Team,Integer)]
-auxEmpates ((e1,e2),(_,1)) = [(e1,1),(e2,1)]
-auxEmpates ((e1,e2),(t,3)) | t == e1 = [(e1,3),(e2,0)]
-                           | otherwise = [(e1,0),(e2,3)]
-
-empates :: [Match] -> [(Team,Integer)] -> [(Team,Integer)]
-empates l1 l2 =  cataList (either (nil) (conc . (auxEmpates >< id ))) zipL
+getPoints :: [Match] -> [Maybe Team] -> [(Team,Integer)]
+getPoints l1 l2 =  cataList (either (nil) (conc . (auxgetPoints >< id))) zipL
   where
     zipL = zip l1 l2
 
 pmatchResult :: (Dist [Maybe Team],[Match]) -> Dist [Team]
-pmatchResult (resultados,partidas) = mapD (best 2 . consolidate . empates partidas . map (getpontuacao2)) resultados
+pmatchResult (resultados,partidas) = mapD (best 2 . consolidate . getPoints partidas) resultados
 
 pgroupWinners :: (Match -> Dist (Maybe Team)) -> [Match] -> Dist [Team]
 pgroupWinners f = pmatchResult . split (sequence . map (\m -> (f m))) (id)
 
-gteste = (psimulateGroupStage . genGroupStageMatches) (groups)
+gteste = (psimulateGroupStage . genGroupStageMatches) (take 6 groups)
 teste4 = pgroupWinners pgsCriteria (head teste4pro)
 \end{code}
 
