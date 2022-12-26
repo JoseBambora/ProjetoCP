@@ -1254,9 +1254,6 @@ glt l = i2 ((split (take n) (drop n)) l)
 \subsubsection*{Versão probabilística}
 \begin{code}
 
-teste4pro :: [[Match]]
-teste4pro = [[("Portugal","France"),("Brazil","Argentina"),("Portugal","Brazil"),("France","Argentina"),("Portugal","Argentina"),("Brazil","France")]]
-
 createDist :: Team -> Dist (LTree Team)
 createDist t = D [(Leaf t, 1)]
 
@@ -1289,8 +1286,6 @@ pmatchResult (resultados,partidas) = mapD (best 2 . consolidate . getPoints part
 pgroupWinners :: (Match -> Dist (Maybe Team)) -> [Match] -> Dist [Team]
 pgroupWinners f = pmatchResult . split (sequence . map (\m -> (f m))) (id)
 
-gteste = (psimulateGroupStage . genGroupStageMatches) (take 6 groups)
-teste4 = pgroupWinners pgsCriteria (head teste4pro)
 \end{code}
 
 %----------------- Índice remissivo (exige makeindex) -------------------------%
