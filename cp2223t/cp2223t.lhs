@@ -1235,7 +1235,7 @@ Diagrama da nossa função pairup:
 Diagrama da função fun:
 \begin{eqnarray*}
 \xymatrix@@C=1.2cm{
-  (A, A^*)\ar[rr]^{|split (pairupAux) (pairup . p2)|} & & (A^*,A^*)\ar[rr]^{|conc|} & & (A \times A)^*
+  (A, A^*)\ar[rr]^{|split (fun2) (pairup . p2)|} & & (A^*,A^*)\ar[rr]^{|conc|} & & (A \times A)^*
 }
 \end{eqnarray*}
 
