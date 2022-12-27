@@ -1214,22 +1214,38 @@ Gene de |consolidate'|:
 funCgene :: (Eq a, Num b) => ((a,b),[(a, b)]) -> [(a, b)]
 funCgene arg = case lu of
                   Nothing -> cons arg
-                  Just n -> (esq, (p2 e) + n) : (filter (\tuplo -> (p1 tuplo) /= esq) t)
+                  Just n -> (cons . (( id >< (+n)) >< (filter (\tuplo -> (p1 tuplo) /= esq)))) arg
   where
-    e = p1 arg
-    t = p2 arg
-    lu = uncurry List.lookup ((p1 >< id) arg)
-    esq = p1 e
+    lu = (uncurry (List.lookup) . (p1 >< id)) arg
+    esq = (p1 . p1) arg
   
 cgene :: (Num b, Eq a) => Either () ((a, b), [(a, b)]) -> [(a, b)] 
 cgene = either (nil) (funCgene)
 
 \end{code}
 Geração dos jogos da fase de grupos:
-\begin{code}
 
-pairup [] = []
-pairup (x:xs) = (map(\t -> (x,t)) xs) ++ pairup xs
+Diagrama da nossa função pairup:
+\begin{eqnarray*}
+\xymatrix{
+  (A \times A)^* \\
+  A^*\ar[rr]_{|outList|}\ar[u]^{|pairup|} & & 1 + (A, A^*)\ar[ull]_{|either (nil) (fun) |} 
+}
+\end{eqnarray*}
+Diagrama da função fun:
+\begin{eqnarray*}
+\xymatrix@@C=1.2cm{
+  (A, A^*)\ar[rr]^{|split (pairupAux) (pairup . p2)|} & & (A^*,A^*)\ar[rr]^{|conc|} & & (A \times A)^*
+}
+\end{eqnarray*}
+
+A nossa função |fun2| é similar à função zip. A função zip associa elementos de 2 listas, 
+criando tuplos. A nossa função |fun2| associa um elemento a cada um dos elementos de uma lista.
+\begin{code}
+pairup = (either (nil) (fun) . outList)
+  where
+    fun = conc . split (fun2) (pairup . p2)
+    fun2 (x,y) = map(\e -> (x,e)) y 
 
 getpontuacao r e = case r of
                       Nothing -> 1
@@ -1244,12 +1260,22 @@ matchResult f p = [(e1,pontos1),(e2,pontos2)]
     pontos1 = getpontuacao result e1
     pontos2 = getpontuacao result e2
 
+\end{code}
+O diagrama da nossa função glt é o seguinte
+\begin{eqnarray}
+\xymatrix{
+  A^*\ar[rr]^{|glt|} & & A + (A^* \times A^*)
+}
+\end{eqnarray}
+A nossa função glt, quando recebe uma lista com apenas um único elemento, injeta esse mesmo
+elemento à esquerda numa alternativa. Caso contrário, invoca a função |splitAt| do prelude do 
+Haskell. Esta função necessita de um indice para separar a lista. Este indice neste exercício 
+será sempre o meio da lista.
+\begin{code}
 glt [x] = i1 x
-glt l = i2 ((split (take n) (drop n)) l)
+glt l = i2 (splitAt n l)
     where
       n = div (length l) 2
-
-
 \end{code}
 \subsubsection*{Versão probabilística}
 \begin{code}
