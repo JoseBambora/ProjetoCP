@@ -1208,9 +1208,15 @@ present = sequence . map(\l -> do {(drawSq l); await;})
 
 \subsection*{Problema 4}
 \subsubsection*{Versão não probabilística}
-Gene de |consolidate'|:
-\begin{code}
+O gene de |consolidate'| é:
 
+\begin{code}
+cgene :: (Num b, Eq a) => Either () ((a, b), [(a, b)]) -> [(a, b)] 
+cgene = either (nil) (funCgene)
+\end{code}
+
+A funCgene é definida da seguinte maneira:
+\begin{code}
 funCgene :: (Eq a, Num b) => ((a,b),[(a, b)]) -> [(a, b)]
 funCgene arg = case lu of
                   Nothing -> cons arg
@@ -1218,55 +1224,135 @@ funCgene arg = case lu of
   where
     lu = (uncurry (List.lookup) . (p1 >< id)) arg
     esq = (p1 . p1) arg
-  
-cgene :: (Num b, Eq a) => Either () ((a, b), [(a, b)]) -> [(a, b)] 
-cgene = either (nil) (funCgene)
-
 \end{code}
-Geração dos jogos da fase de grupos:
 
-Diagrama da nossa função pairup:
+A nossa ideia com a funCgene foi primeiramente verificar se uma determinada "chave"
+existia numa lista de tuplos e se sim, qual era o valor associado. Para isso tivemos
+recurso à lookup definida no modulo List.hs . A função lookup desse modulo recebe a chave
+e a lista sem ser sub a forma de par. Devido a isso usamos a função uncurry.
+
+Após esta fase temos 2 hipoteses, ou a chave foi encontrada e temos Just e o valor associado, 
+ou não foi encontrada e temos Nothing. 
+
+Se tivermos Nothing o que esta função faz é invocar a função cons definida em Cp.hs e damos como 
+argumento o par recebido. 
+
+Caso o valor tenha sido encontrado, então vamos aplicar uma função à esquerda e uma função
+à direita no par recebido como argumento. À esquerda, mantemos a chave e aumentamos uma certa 
+quantia no valor. Essa quantia foi o valor encontrado pela função lookup. 
+Como nós não queremos ter chaves repetidas, ao lado esquerdo simplesmente invocamos a 
+função filter para eliminar o elemento com a tal chave encontrado pela função lookup. 
+
+Após estas duas operações é invocada a função cons definida no modulo Cp.hs .
+
+A função pairup definimos da seguinte forma:
+
+\begin{code}
+pairup = (either (nil) (fun) . outList)
+  where
+    fun = conc . split (fun2) (pairup . p2)
+    fun2 (x,y) = map(\e -> (x,e)) y 
+\end{code}
+
+A nossa função pairup pode ser representada da seguinte forma:
+
 \begin{eqnarray*}
 \xymatrix{
   (A \times A)^* \\
-  A^*\ar[rr]_{|outList|}\ar[u]^{|pairup|} & & 1 + (A, A^*)\ar[ull]_{|either (nil) (fun) |} 
+  & &  1 + (A, A^*)\ar[ull]_{|either (nil) (fun) |}\\
+  A^*\ar[urr]_{|outList|}\ar[uu]^{|pairup|} 
 }
 \end{eqnarray*}
-Diagrama da função fun:
+
+O diagrama da nossa função auxiliar fun, é o seguinte:
+
 \begin{eqnarray*}
 \xymatrix@@C=1.2cm{
   (A, A^*)\ar[rr]^{|split (fun2) (pairup . p2)|} & & (A^*,A^*)\ar[rr]^{|conc|} & & (A \times A)^*
 }
 \end{eqnarray*}
 
-A nossa função |fun2| é similar à função zip. A função zip associa elementos de 2 listas, 
-criando tuplos. A nossa função |fun2| associa um elemento a cada um dos elementos de uma lista.
-\begin{code}
-pairup = (either (nil) (fun) . outList)
-  where
-    fun = conc . split (fun2) (pairup . p2)
-    fun2 (x,y) = map(\e -> (x,e)) y 
+A nossa função |fun2| é  muito similar à função zip. A função zip associa elementos de 2 listas, 
+originando uma lista com tuplos das respetivas associações. 
+A nossa função |fun2| simplesmente um elemento a cada um dos elementos de uma lista, originando 
+na mesma tuplos.
 
-getpontuacao r e = case r of
+Passando para a função, matchResult, numa primeira abordargem defimos a matchResult da seguinte forma:
+
+\begin{spec}
+    matchResult f p = [(e1,pontos1),(e2,pontos2)]
+    where
+      e1 = p1 p
+      e2 = p2 p
+      result = f p
+      pontos1 = getpontuacao result e1
+      pontos2 = getpontuacao result e2
+\end{spec}
+
+Esta função é bastante simples, mas não trabalha como uma função de point free.
+Após resolvermos todos os exercícios do projeto, proposemo-nos em adaptar certas 
+funções para point free. A match result foi uma delas. Sendo assim a nossa função matchResult 
+ficou definida da seguinte forma:
+
+\begin{code}
+matchResult f = getPointsMatch . split (id) (f)
+\end{code}
+
+As funções auxiliares a matchResult são:
+
+\begin{code}
+
+getpontuacao :: (Team, Maybe Team) -> Integer
+getpontuacao (e,r) = case r of
                       Nothing -> 1
                       Just t -> if t == e then 3
                                 else 0
 
-matchResult f p = [(e1,pontos1),(e2,pontos2)]
-  where
-    e1 = p1 p
-    e2 = p2 p
-    result = f p
-    pontos1 = getpontuacao result e1
-    pontos2 = getpontuacao result e2
+getPointsMatch :: (Match,Maybe Team) -> [(Team,Integer)]
+getPointsMatch = conc . (fmr >< fmr) . split (p1 >< id) (p2 >< id)
+    where 
+        fmr = singl . split (p1) (getpontuacao)
 
 \end{code}
-O diagrama da nossa função glt é o seguinte
+
+Um diagrama como a função matchResult, junto com a getPointsMatch funcionam em conjunto:
+
+\begin{eqnarray*}
+\xymatrix{
+  (E \times Nat)^* & & (E \times Nat)^* \times (E \times Nat)\ar[ll]^{|uncurry (++)|}\\
+  & & & & ((E \times R) \times (E \times R))\ar[ull]_{|fmr >< fmr|}\\
+  (f \ (E \times E))\ar[rr]^{|split (id) (f)|}\ar[uu]^{|matchResult|} & & ((E \times E) \times R)\ar[urr]^{|split (p1 >< id) (p2 >< id)|}\ar[uu]^{|getPointsMatch|}\\
+}
+\end{eqnarray*}
+
+A função fmr é representada da seguinte forma:
+
+\begin{eqnarray*}
+\xymatrix{
+  (E \times R)\ar[rr]^{|split (p1) (getpontuacao)|} & & (E \times Nat)\ar[rr]^{|singl|} & & (E,Nat)^* 
+}
+\end{eqnarray*}
+
+Passaremos a explicar cada passo desta nossa função matchResult. Primeiramente a nossa função 
+pega na função recebida como argumento e aplica à partida em questão. De forma a não perder quais
+as equipas que jogaram, é originado o par (Partida, Resultado) ou ((Equipa 1, Equipa 2), Resultado).
+A etapa seguinte é tentar organizar este tuplo em (equipa,resultado). Para isto utilizamos mais uma
+vez a função split que transforma o par ((Equipa 1, Equipa 2), Resultado) no par 
+((Equipa 1, Resultado), (Equipa 2, Resultado)). Quisemos organizar assim para ser mais
+fácil a utilização da nossa função getpontuacao. Após isto invocamos a função fmr que que 
+transforma o último par em ([(Equipa 1, Pontuação 1)], [(Equipa 2, Pontuação 1)]), utilizando
+a função getpontuacao como auxiliar. Após esta fase basta apenas adaptar o tipo deste resultado para 
+o pretendido que é [(Equipa 1, Pontuação 1), (Equipa 2, Pontuação 1)]. Para isso basta invocar 
+a função conc definida no modulo Cp.hs.
+
+Passando para a função glt, o diagrama da nossa função glt é o seguinte:
+
 \begin{eqnarray}
 \xymatrix{
   A^*\ar[rr]^{|glt|} & & A + (A^* \times A^*)
 }
 \end{eqnarray}
+
 A nossa função glt, quando recebe uma lista com apenas um único elemento, injeta esse mesmo
 elemento à esquerda numa alternativa. Caso contrário, invoca a função |splitAt| do prelude do 
 Haskell. Esta função necessita de um indice para separar a lista. Este indice neste exercício 
@@ -1279,39 +1365,20 @@ glt l = i2 (splitAt n l)
 \end{code}
 \subsubsection*{Versão probabilística}
 \begin{code}
-
-createDist :: Team -> Dist (LTree Team)
-createDist t = D [(Leaf t, 1)]
-
-createFork :: LTree Team -> LTree Team -> LTree Team
-createFork e d = Fork (e,d)
-
-tupleDist :: (Dist (LTree Team),Dist (LTree Team)) -> Dist (LTree Team)
-tupleDist (x,y) = joinWith createFork x y
-
-initAux :: LTree Team -> Dist (LTree Team)
-initAux = cataLTree (either (createDist) (tupleDist))
-
 pinitKnockoutStage :: [[Team]] -> Dist (LTree Team)
-pinitKnockoutStage =  initAux . initKnockoutStage
-
-auxgetPoints :: (Match,Maybe Team) -> [(Team,Integer)]
-auxgetPoints ((e1,e2),r) = [(e1,po1),(e2,po2)]
+pinitKnockoutStage = cataLTree (either (createDist) (tupleDist)) . initKnockoutStage
   where
-    po1 = getpontuacao r e1
-    po2 = getpontuacao r e2
+    createDist t = D [(Leaf t, 1)]
+    tupleDist = uncurry (joinWith (curry Fork))
 
-getPoints :: [Match] -> [Maybe Team] -> [(Team,Integer)]
-getPoints l1 l2 =  cataList (either (nil) (conc . (auxgetPoints >< id))) zipL
-  where
-    zipL = zip l1 l2
+getPoints :: ([Match],[Maybe Team]) -> [(Team,Integer)]
+getPoints =  cataList (either (nil) (conc . (getPointsMatch >< id))) . uncurry zip
 
 pmatchResult :: (Dist [Maybe Team],[Match]) -> Dist [Team]
-pmatchResult (resultados,partidas) = mapD (best 2 . consolidate . getPoints partidas) resultados
+pmatchResult (resultados,partidas) = mapD (best 2 . consolidate . getPoints . split (const partidas) (id)) resultados
 
 pgroupWinners :: (Match -> Dist (Maybe Team)) -> [Match] -> Dist [Team]
 pgroupWinners f = pmatchResult . split (sequence . map (\m -> (f m))) (id)
-
 \end{code}
 
 %----------------- Índice remissivo (exige makeindex) -------------------------%
