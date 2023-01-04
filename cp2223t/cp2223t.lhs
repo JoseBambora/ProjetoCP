@@ -1364,22 +1364,70 @@ glt l = i2 (splitAt n l)
       n = div (length l) 2
 \end{code}
 \subsubsection*{Versão probabilística}
+Implementamos a função pinitKnockoutStage da seguinte forma:
 \begin{code}
 pinitKnockoutStage :: [[Team]] -> Dist (LTree Team)
-pinitKnockoutStage = cataLTree (either (createDist) (tupleDist)) . initKnockoutStage
+pinitKnockoutStage = cataLTree (either createDist tupleDist) . initKnockoutStage
   where
     createDist t = D [(Leaf t, 1)]
     tupleDist = uncurry (joinWith (curry Fork))
+\end{code}
 
+Esta função primeiramente invoca a função initKnockoutStage definida já na versão não probabilística.
+
+Após isto nós obtemos uma LTree já com as partidas formadas. Agora basta apenas iniciar 
+as probabilidades.
+
+Para isto usamos a cataLTree defina no module LTree.hs. Esta função para as folhas,
+cria a distribuição com probabilidade igual a 100\%. Como os nodos são apenas 1 equipa,
+a probabilidade de elas mesmas "ganharem" é 100\%, dai atribuirmos essa probabilidade.
+
+Para os nodos Fork, é aplicada a função tupleDist. Esta função cria o Fork, pois a cataLTree
+"destroi" a LTree e é necessário contrui-la outra vez. Depois disso, como as subarvores são
+distribuição de LTree, precisamos de utilizar a função joinWith definida em Probability.hs 
+de forma a criar as combinações das distribuições.
+
+Um esquema a demonstrar como esta função funciona:
+
+\begin{eqnarray}
+\xymatrix{
+  Dist (LTree Team)                                                                 & & Team + (Dist\ (LTree\ Team) \times Dist\ (LTree\ Team))\ar[ll]_(0.65){|either createDist tupleDist|}\\
+  LTree Team \ar[u]^{|cataLTree (either createDist tupleDist)|}\ar[rr]_(0.35){|outLTree|} & & Team + (LTree\ Team \times LTree\ Team) \ar[u]_{|id + pgroupWinners >< pgroupWinners|}\\
+  (Team^*)^*\ar[u]^{|initKnockoutStage|}
+}
+\end{eqnarray}
+
+Partindo para  a função pgroupWinners, esta nossa função ficou definida da seguinte forma:
+
+\begin{code}
+pgroupWinners :: (Match -> Dist (Maybe Team)) -> [Match] -> Dist [Team]
+pgroupWinners f = pmatchResult . split (sequence . map (\m -> (f m))) (id)
+\end{code}
+
+Esta função primeiramente gera as probabilidade do resultado de todas as partidas e de seguida invoca
+a função pmatchResult.
+
+A função pmatchResult está implementada assim:
+\begin{code}
 getPoints :: ([Match],[Maybe Team]) -> [(Team,Integer)]
 getPoints =  cataList (either (nil) (conc . (getPointsMatch >< id))) . uncurry zip
 
 pmatchResult :: (Dist [Maybe Team],[Match]) -> Dist [Team]
 pmatchResult (resultados,partidas) = mapD (best 2 . consolidate . getPoints . split (const partidas) (id)) resultados
-
-pgroupWinners :: (Match -> Dist (Maybe Team)) -> [Match] -> Dist [Team]
-pgroupWinners f = pmatchResult . split (sequence . map (\m -> (f m))) (id)
 \end{code}
+
+A função pmatchResult usa como função auxiliar getPoints. Esta função getPoints é praticamente 
+igual à função getPointsMatch, até que não é por acaso que a utiliza. 
+A diferença está nos argumentos, em que getPointsMatch recebe um tuplo (Match, Maybe Team) e 
+getPoints recebe ([Match],[Maybe Team]).
+ 
+A função pmatchResult simplesmente aplica uma sequência de funções às probabilidades
+geradas na função pgroupWinners. Primeiramente é gerado o tuplo ([Match],[Maybe Team])
+para usarmos a função getPoints. Depois invocamos a função já definida previamente pela equipa
+docente, a consolidate, de forma a obtermos as pontuações finais de cada equipa no final do grupo.
+Depois invocamos mais uma vez uma função já previamente definida, a best, que vai buscar a n melhores
+equipas em cada grupo. Para aplicar estas funções às probabilidades, utilizamos a função
+mapD que aplica uma certa função ao conteúdo de uma distribuição.
 
 %----------------- Índice remissivo (exige makeindex) -------------------------%
 
