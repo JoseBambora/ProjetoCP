@@ -996,7 +996,7 @@ rankings = [
          ("Croatia",4.4),
          ("Denmark",4.5),
          ("Ecuador",4.0),
-         ("England",4.7),
+         ("England",4.0),
          ("France",4.8),
          ("Germany",4.5),
          ("Ghana",3.8),
@@ -1232,7 +1232,7 @@ Podemos definir a função rose2 list através do catamorfismo de RoseTrees que 
 extrair os quadrados da árvore auxiliar.
 
 O gene \textit{gr2l} é bastante simples e fizemo-lo de forma \textit{point-free}. O que esta função faz é colocar à cabeça da lista a raiz da árvore e concatenar esse elemento 
-à concatenação de todos os elementos das subarvores. o que se obtem aplicando \textit{cons} ao produto de \texit{id} e \textit{concat}.
+à concatenação de todos os elementos das subarvores. o que se obtem aplicando \textit{cons} ao produto de \textit{id} e \textit{concat}.
 
 \begin{code}
 rose2List = cataRose gr2l
@@ -1379,7 +1379,7 @@ Um diagrama como a função matchResult, junto com a getPointsMatch funcionam em
 
 \begin{eqnarray*}
 \xymatrix{
-  (E \times Nat)^* & & (E \times Nat)^* \times (E \times Nat)\ar[ll]^{|uncurry (++)|}\\
+  (E \times |Nat0|)^* & & (E \times |Nat0|)^* \times (E \times |Nat0|)\ar[ll]^{|uncurry (++)|}\\
   & & & & ((E \times R) \times (E \times R))\ar[ull]_{|fmr >< fmr|}\\
   (f \ (E \times E))\ar[rr]^{|split (id) (f)|}\ar[uu]^{|matchResult|} & & ((E \times E) \times R)\ar[urr]^{|split (p1 >< id) (p2 >< id)|}\ar[uu]^{|getPointsMatch|}\\
 }
@@ -1389,7 +1389,7 @@ A função fmr é representada da seguinte forma:
 
 \begin{eqnarray*}
 \xymatrix{
-  (E \times R)\ar[rr]^{|split (p1) (getpontuacao)|} & & (E \times Nat)\ar[rr]^{|singl|} & & (E,Nat)^* 
+  (E \times R)\ar[rr]^{|split (p1) (getpontuacao)|} & & (E \times |Nat0|)\ar[rr]^{|singl|} & & (E,Nat)^* 
 }
 \end{eqnarray*}
 
@@ -1488,6 +1488,82 @@ docente, a consolidate, de forma a obtermos as pontuações finais de cada equip
 Depois invocamos mais uma vez uma função já previamente definida, a best, que vai buscar a n melhores
 equipas em cada grupo. Para aplicar estas funções às probabilidades, utilizamos a função
 mapD que aplica uma certa função ao conteúdo de uma distribuição.
+
+A pedido da equipa docente vamos testar as funções pwinner e winner para rankings diferentes.
+
+Sendo assim manipulamos os rankings para a seguinte forma:
+
+\begin{spec}
+rankings = [
+         ("Argentina",4.4),
+         ("Australia",4.0),
+         ("Belgium",4.2),
+         ("Brazil",4.7),
+         ("Cameroon",4.0),
+         ("Canada",4.0),
+         ("Costa Rica",4.1),
+         ("Croatia",4.7),
+         ("Denmark",4.3),
+         ("Ecuador",4.0),
+         ("England",3.8),
+         ("France",5.0),
+         ("Germany",5.0),
+         ("Ghana",3.9),
+         ("Iran",4.0),
+         ("Japan",4.1),
+         ("Korea Republic",3.9),
+         ("Mexico",4.5),
+         ("Morocco",4.2),
+         ("Netherlands",4.8),
+         ("Poland",4.2),
+         ("Portugal",5.5),
+         ("Qatar",3.9),
+         ("Saudi Arabia",3.9),
+         ("Senegal",4.3),
+         ("Serbia",3.8),
+         ("Spain",4.0),
+         ("Switzerland",4.4),
+         ("Tunisia",4.1),
+         ("USA",4.4),
+         ("Uruguay",4.5),
+         ("Wales",4.3)]
+\end{spec}
+O resultado da execução de winner foi:
+
+\begin{spec}
+*Main> winner
+"Portugal"
+\end{spec}
+
+O resultado da execução de pwinner foi:
+
+\begin{spec}
+*Main> pwinner
+   "Portugal"  33.7%
+     "France"  14.7%
+    "Germany"  14.0%
+"Netherlands"   8.8%
+    "Croatia"   5.6%
+     "Mexico"   3.8%
+     "Brazil"   3.8%
+    "Uruguay"   2.8%
+        "USA"   2.7%
+    "Senegal"   2.0%
+"Switzerland"   1.8%
+  "Argentina"   1.6%
+      "Wales"   1.6%
+    "Denmark"   1.2%
+    "Morocco"   0.7%
+    "Tunisia"   0.3%
+     "Poland"   0.3%
+      "Spain"   0.2%
+      "Japan"   0.1%
+ "Costa Rica"   0.1%
+     "Canada"   0.1%
+
+\end{spec}
+
+Tendo em conta o nosso novo ranking, os resultados são os esperados.
 
 %----------------- Índice remissivo (exige makeindex) -------------------------%
 
