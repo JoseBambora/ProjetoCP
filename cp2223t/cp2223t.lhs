@@ -1215,20 +1215,7 @@ Dedução da função loop:
       f a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
 \end{spec} 
 
-Diagrama da função loop:
-\begin{eqnarray*}
-\xymatrix{
-  (S^*)^* & & S + S \times (S^*)^*\ar[ll]_{gene}\\
-  Exp S S \ar[u]^{post}\ar[rr]_{outExp} & & S + S \times (S^*) \ar[u]_{id + id \times post}
-}
-\end{eqnarray*}
-
-Definição do loop, point-wise:
-\begin{spec}
-<<g,h>,f> a b c = (|<<[1,sum . (sum) >< id . ((a*) >< (b*)) >< (c*)],[1,p1.p1]>,[0,p2.p1]>|)
-\end{spec}
-
-Definição do loop, point-free:
+Definição do loop, point-free (chegamos à conclusão que é igual a f):
 \begin{spec}
 loop a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
 \end{spec}
@@ -1354,14 +1341,6 @@ Resultado:
   ]
 ]
 \end{spec}
-
-
-\begin{eqnarray*}
-\xymatrix{
-  (S^*)^* & & S + S \times (S^*)^*\ar[ll]_{gene}\\
-  Exp S S \ar[u]^{post}\ar[rr]_{outExp} & & S + S \times (S^*) \ar[u]_{id + id \times post}
-}
-\end{eqnarray*}
 
 Os resultados dos seguintes testes estão corretos.
 \begin{code}
