@@ -1417,12 +1417,13 @@ A nossa função glt, quando recebe uma lista com apenas um único elemento, inj
 elemento à esquerda numa alternativa. Caso contrário, invoca a função |splitAt| do prelude do 
 Haskell. Esta função necessita de um indice para separar a lista. Este indice neste exercício 
 será sempre o meio da lista.
+
 \begin{code}
-glt [x] = i1 x
-glt l = i2 (splitAt n l)
+glt = (id -|- ((uncurry splitAt) . split (metade . length) (id) . cons)) . outP2
     where
-      n = div (length l) 2
+      metade n = div n 2
 \end{code}
+
 \subsubsection*{Versão probabilística}
 Implementamos a função pinitKnockoutStage da seguinte forma:
 \begin{code}
