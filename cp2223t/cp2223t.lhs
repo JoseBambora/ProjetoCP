@@ -1181,7 +1181,8 @@ squares = anaRose gsq
 \end{code}
 
 De modo a termos a lista dos nove quadrados gerados a partir de um quadrado inicial quando se faz uma iteração no tapete de Sierpinksi, tal como se pode ver nas figuras \ref{fig:sierp1} 
-e \ref{fig:sierp2} definimos a função \textit{geraquadrados}, que é bastante simples, pois apenas cria uma lista de quadrados, em que os quadrados gerados 
+e \ref{fig:sierp2}, em que um desses quadrados coincide com o quadrado a gerar no meio e os outros oito quadrados são colocados em torno do quadrado central, definimos a função \textit{geraquadrados}. 
+Esta função é bastante simples, pois apenas cria uma lista de quadrados, em que os quadrados gerados 
 têm coordenadas diferentes do que o quadrado original, adicionando ou removendo um terço do \textit{Side} do \textit{Square}, passado como parâmetro. E alterando o valor do comprimento 
 do lado do quadrado para um terço do valor original.
 
@@ -1214,7 +1215,7 @@ Assim, de modo a apresentar o tipo desejado no resultado, \textit{(Square,[(Squa
 que corresponde ao quadrado central, obtido através de \textit{qc} e aplicar a \textit{geraquadrados} para cada um dos quadrados gerados, decremento sempre a profundidade via \textit{paux} e juntar num tuplo, 
 ficando então com o resultado (quadrado inicial, lista de quadrados gerados a cada profundidade).
 
-O aplicar da função que gera os quadrados a todos os quadrados gerados é garantido graças ao \textit{map} que definimos, e a dimimuição da profundidade é feito por \textit{qv}.
+O aplicar da função que gera os quadrados a todos os quadrados gerados é garantido graças ao \textit{map} que definimos, enquanto que a aplicação recursiva consoante o valor de \textit{paux} é garantida por \textit{qv}.
 
 \begin{code}
 gsq :: (Square,Int) -> (Square,[(Square,Int)])
@@ -1257,7 +1258,7 @@ A função \textit{present} simplesmente aplica a função \textit{drawSq} para 
 
 \begin{code}
 carpets :: Int -> [[Square]]
-carpets n = map (\n -> (sierpinski (squareExemplo,n))) [0..n]
+carpets n = map (\s -> (sierpinski (squareExemplo,s))) [0..n]
 
 squareExemplo = ((0.0,0.0),32.0)
 

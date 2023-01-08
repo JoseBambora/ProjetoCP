@@ -1343,7 +1343,7 @@ Rankings:
 \>[10]{}(\text{\ttfamily \char34 Ecuador\char34},\mathrm{4.0}),{}\<[E]%
 \\
 \>[B]{}\hsindent{10}{}\<[10]%
-\>[10]{}(\text{\ttfamily \char34 England\char34},\mathrm{4.7}),{}\<[E]%
+\>[10]{}(\text{\ttfamily \char34 England\char34},\mathrm{4.0}),{}\<[E]%
 \\
 \>[B]{}\hsindent{10}{}\<[10]%
 \>[10]{}(\text{\ttfamily \char34 France\char34},\mathrm{4.8}),{}\<[E]%
@@ -1623,7 +1623,6 @@ Gene de \ensuremath{\Varid{tax}}:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{16}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{17}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{53}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{outP2}\mathbin{::}[\mskip1.5mu \Varid{a}\mskip1.5mu]\to \Varid{a}+(\Varid{a},[\mskip1.5mu \Varid{a}\mskip1.5mu]){}\<[E]%
@@ -1654,18 +1653,15 @@ Gene de \ensuremath{\Varid{tax}}:
 \>[B]{}\hsindent{16}{}\<[16]%
 \>[16]{}\mid \Varid{otherwise}\mathrel{=}\Varid{l}\mathbin{+\!\!\!+}[\mskip1.5mu [\mskip1.5mu (\Varid{s},\Varid{n})\mskip1.5mu]\mskip1.5mu]{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{funAux2}\mathbin{::}\Conid{String}\to \mathbb{Z}\to \Conid{String}{}\<[E]%
+\>[B]{}\Varid{teste21}\mathrel{=}\Varid{expDepth}\;\Varid{acm\char95 tree}\equiv \mathrm{7}{}\<[E]%
 \\
-\>[B]{}\Varid{funAux2}\;\text{\ttfamily \char34 \char34}\;\anonymous \mathrel{=}\text{\ttfamily \char34 \char34}{}\<[E]%
+\>[B]{}\Varid{teste22}\mathrel{=}\length \;(\Varid{expOps}\;\Varid{acm\char95 tree})\equiv \mathrm{432}{}\<[E]%
 \\
-\>[B]{}\Varid{funAux2}\;(\Varid{h}\mathbin{:}\Varid{t})\;\Varid{n}\mid \Varid{n}\mathbin{>}\mathrm{0}\mathrel{=}\Varid{funAux2}\;\Varid{t}\;(\Varid{n}\mathbin{-}\mathrm{1}){}\<[E]%
-\\
-\>[B]{}\hsindent{17}{}\<[17]%
-\>[17]{}\mid \Varid{otherwise}\mathrel{=}(\Varid{h}\mathbin{:}\Varid{t}){}\<[E]%
+\>[B]{}\Varid{teste23}\mathrel{=}\length \;(\Varid{expLeaves}\;\Varid{acm\char95 tree})\equiv \mathrm{1682}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{fun}\mathbin{::}[\mskip1.5mu \Conid{String}\mskip1.5mu]\to [\mskip1.5mu [\mskip1.5mu \Conid{String}\mskip1.5mu]\mskip1.5mu]{}\<[E]%
 \\
-\>[B]{}\Varid{fun}\mathrel{=}\map \;(\map \;(\lambda (\Varid{s},\Varid{n})\to \Varid{funAux2}\;\Varid{s}\;\mathrm{4}))\comp \Varid{foldl}\;\Varid{funAux}\;[\mskip1.5mu \mskip1.5mu]\comp \map \;(\lambda \Varid{s}\to (\Varid{s},\Varid{contaEspacos}\;\Varid{s})){}\<[E]%
+\>[B]{}\Varid{fun}\mathrel{=}\map \;(\map \;(\lambda (\Varid{s},\Varid{n})\to \Varid{drop}\;\mathrm{4}\;\Varid{s}))\comp \Varid{foldl}\;\Varid{funAux}\;[\mskip1.5mu \mskip1.5mu]\comp \map \;(\lambda \Varid{s}\to (\Varid{s},\Varid{contaEspacos}\;\Varid{s})){}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{gene}\mathrel{=}(\Varid{id}+(\Varid{id}\times\Varid{fun}))\comp \Varid{outP2}{}\<[E]%
 \ColumnHook
@@ -1683,56 +1679,705 @@ Função de pós-processamento:
 \end{hscode}\resethooks
 
 \subsection*{Problema 3}
+
+Para resolver o problema 3, temos de tal como mencionado no enunciado, definir os genes do hilomofismo \textit{sierpinski}, ou seja definir \textit{gr2l} e 
+\textit{gsq} e correr a funcão \textit{sierp4} depois, temos de definar as funções \textit{present} e \textit{carpets} de modo a podermos desenhar tapetes de Sierpinksi 
+de profundidade n.
+Assim, de modo a alcançar a solução pretendida, codificamos as seguintes funções:
+
+Primeiro começamos por definir a função \textit{squares} como um anamorfismo de RoseTrees com gene \textit{gsq}, esta função cria a árvore de suporte com todos os quadrados 
+a desenhar, para uma dada profundidade.
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{squares}\mathrel{=}\lanabracket\;\!\Varid{gsq}\;\!\ranabracket_\textit{\tiny R}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{gsq}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{rose2List}\mathrel{=}\llparenthesis\, \Varid{gr2l}\,\rrparenthesis_\textit{\tiny R}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{gr2l}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{carpets}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{present}\mathrel{=}\bot {}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
+De modo a termos a lista dos nove quadrados gerados a partir de um quadrado inicial quando se faz uma iteração no tapete de Sierpinksi, tal como se pode ver nas figuras \ref{fig:sierp1} 
+e \ref{fig:sierp2}, em que um desses quadrados coincide com o quadrado a gerar no meio e os outros oito quadrados são colocados em torno do quadrado central, definimos a função \textit{geraquadrados}. 
+Esta função é bastante simples, pois apenas cria uma lista de quadrados, em que os quadrados gerados 
+têm coordenadas diferentes do que o quadrado original, adicionando ou removendo um terço do \textit{Side} do \textit{Square}, passado como parâmetro. E alterando o valor do comprimento 
+do lado do quadrado para um terço do valor original.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{17}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{19}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{28}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{geraquadrados}\mathbin{::}\Conid{Square}\to [\mskip1.5mu \Conid{Square}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{geraquadrados}\;((\Varid{x},\Varid{y}),\Varid{c})\mathrel{=}[\mskip1.5mu {}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x}\mathbin{+}\Varid{a},\Varid{y}\mathbin{+}\Varid{a}),\Varid{a}),{}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x},\Varid{y}\mathbin{+}\mathrm{2}\mathbin{*}\Varid{a}),\Varid{a}),{}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x}\mathbin{+}\Varid{a},\Varid{y}\mathbin{+}\mathrm{2}\mathbin{*}\Varid{a}),\Varid{a}),{}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x}\mathbin{+}\mathrm{2}\mathbin{*}\Varid{a},\Varid{y}\mathbin{+}\mathrm{2}\mathbin{*}\Varid{a}),\Varid{a}),{}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x},\Varid{y}\mathbin{+}\Varid{a}),\Varid{a}),{}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x}\mathbin{+}\mathrm{2}\mathbin{*}\Varid{a},\Varid{y}\mathbin{+}\Varid{a}),\Varid{a}),{}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x},\Varid{y}),\Varid{a}),{}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x}\mathbin{+}\Varid{a},\Varid{y}),\Varid{a}),{}\<[E]%
+\\
+\>[B]{}\hsindent{28}{}\<[28]%
+\>[28]{}((\Varid{x}\mathbin{+}\mathrm{2}\mathbin{*}\Varid{a},\Varid{y}),\Varid{a})\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\hsindent{17}{}\<[17]%
+\>[17]{}\mathbf{where}{}\<[E]%
+\\
+\>[17]{}\hsindent{2}{}\<[19]%
+\>[19]{}\Varid{a}\mathrel{=}\Varid{c}\mathbin{/}\mathrm{3}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+O gene \textit{gsq}, tem como função gerar os quadrados a desenhar a partir de um quadrado original e uma dada profundidade.
+
+Na forma como o definimos, utilizamos funções auxiliares, e para as explicarmos temos de observar o tipo dos argumentos com que trabalhamos. A primeira função que 
+definimos foi, \textit{paux}, esta função pega na segunda componente do tuplo passado como argumento (\textit{Square},\textit{Int}), ou seja, no inteiro que representa 
+o valor da profundidade e reduz esse valor uma unidade.
+
+A função auxiliar \textit{l}, também é bastante simples, simplesmente aplica a função \textit{geraquadrados} para o quadrado passado no tuplo (\textit{Square},\textit{Int}). 
+Ou seja, \textit{l} é a lista de nove quadrados gerados a partir do quadrado do argumento numa profundidade.
+
+Assim, de modo a apresentar o tipo desejado no resultado, \textit{(Square,[(Square,Int)])}, basta-nos pegar no primeiro quadrado gerado pela função \textit{geraquadrados} 
+que corresponde ao quadrado central, obtido através de \textit{qc} e aplicar a \textit{geraquadrados} para cada um dos quadrados gerados, decremento sempre a profundidade via \textit{paux} e juntar num tuplo, 
+ficando então com o resultado (quadrado inicial, lista de quadrados gerados a cada profundidade).
+
+O aplicar da função que gera os quadrados a todos os quadrados gerados é garantido graças ao \textit{map} que definimos, enquanto que a aplicação recursiva consoante o valor de \textit{paux} é garantida por \textit{qv}.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{14}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{gsq}\mathbin{::}(\Conid{Square},\Conid{Int})\to (\Conid{Square},[\mskip1.5mu (\Conid{Square},\Conid{Int})\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{gsq}\;\Varid{t}\mathrel{=}(\Varid{qc},\map \;(\lambda \Varid{s}\to (\Varid{s},\Varid{paux}))\;\Varid{qv}){}\<[E]%
+\\
+\>[B]{}\hsindent{7}{}\<[7]%
+\>[7]{}\mathbf{where}{}\<[E]%
+\\
+\>[7]{}\hsindent{4}{}\<[11]%
+\>[11]{}\Varid{paux}\mathrel{=}(\p2\;\Varid{t})\mathbin{-}\mathrm{1}{}\<[E]%
+\\
+\>[7]{}\hsindent{4}{}\<[11]%
+\>[11]{}\Varid{l}\mathrel{=}\Varid{geraquadrados}\;(\p1\;\Varid{t}){}\<[E]%
+\\
+\>[7]{}\hsindent{4}{}\<[11]%
+\>[11]{}\Varid{qc}\mathrel{=}\Varid{head}\;\Varid{l}{}\<[E]%
+\\
+\>[7]{}\hsindent{4}{}\<[11]%
+\>[11]{}\Varid{qv}\mid \Varid{paux}\not\equiv \mathbin{-}\mathrm{1}\mathrel{=}\Varid{tail}\;\Varid{l}{}\<[E]%
+\\
+\>[11]{}\hsindent{3}{}\<[14]%
+\>[14]{}\mid \Varid{otherwise}\mathrel{=}[\mskip1.5mu \mskip1.5mu]{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+%Aqui tenho que inserir o esquema do anamorfismo
+
+Podemos definir a função rose2 list através do catamorfismo de RoseTrees que tem como gene \textit{gr2l}, esta função transforma uma RoseTree numa lista e será usada para 
+extrair os quadrados da árvore auxiliar.
+
+O gene \textit{gr2l} é bastante simples e fizemo-lo de forma \textit{point-free}. O que esta função faz é colocar à cabeça da lista a raiz da árvore e concatenar esse elemento 
+à concatenação de todos os elementos das subarvores. o que se obtem aplicando \textit{cons} ao produto de \textit{id} e \textit{concat}.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{rose2List}\mathrel{=}\llparenthesis\, \Varid{gr2l}\,\rrparenthesis_\textit{\tiny R}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{gr2l}\mathrel{=}\Varid{cons}\comp (\Varid{id}\times\Varid{concat}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+%esquema do catamorfismo
+
+%esquema do hilomorfismo sierpinski
+
+Por fim, como a função \textit{constructSierp} é um hilomofismo de listas, é necessário definir o anamorfismo \textit{carpets} e o catamorfismo \textit{present} com os tipos presentes 
+na dica do enunciado. A função \textit{carpets} constroi a lista de todos os tapetes gerados até à profundidade passada como argumento. enquanto que a função \textit{present} percorre 
+a lista de quadrados gerados por \textit{carpets}, desenhando-os esperando um segundo de intervalo.
+
+Para conseguirmos trabalhar com a função \textit{carpets} foi necessário criarmos um quadrado de exemplo, que serve como ponto de partida para a criação da lista dos tapetes de Sierpinksi. 
+Esse quadrado chama-se \textit{squareExemplo} e caso desejamos criar tapetes a partir de outro ponto de partida, basta alterar o quadrado definido.
+
+No caso da função \textit{carpets}, a lista de quadrados gerados obtem-se aplicando o hilomofismo \textit{sierpinski}, n vezes, uma vez para cada profundidade, o que se consegue através da 
+lista com elementos de 0 até n.
+
+A função \textit{present} simplesmente aplica a função \textit{drawSq} para todos os elementos da lista gerada por \textit{carpets}, esperando depois 1 segundo graças à função \text{await}.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{carpets}\mathbin{::}\Conid{Int}\to [\mskip1.5mu [\mskip1.5mu \Conid{Square}\mskip1.5mu]\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{carpets}\;\Varid{n}\mathrel{=}\map \;(\lambda \Varid{s}\to (\Varid{sierpinski}\;(\Varid{squareExemplo},\Varid{s})))\;[\mskip1.5mu \mathrm{0}\mathinner{\ldotp\ldotp}\Varid{n}\mskip1.5mu]{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{squareExemplo}\mathrel{=}((\mathrm{0.0},\mathrm{0.0}),\mathrm{32.0}){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{present}\mathbin{::}[\mskip1.5mu [\mskip1.5mu \Conid{Square}\mskip1.5mu]\mskip1.5mu]\to \fun{IO}\;[\mskip1.5mu ()\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{present}\mathrel{=}\Varid{sequence}\comp \map \;(\lambda \Varid{l}\to \mathbf{do}\;\{\mskip1.5mu (\Varid{drawSq}\;\Varid{l});\Varid{await};\mskip1.5mu\}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+%podia apresentar um esquema para o carpets e outro para o present nao sei
 \subsection*{Problema 4}
 \subsubsection*{Versão não probabilística}
-Gene de \ensuremath{\Varid{consolidate'}}:
+O gene de \ensuremath{\Varid{consolidate'}} é:
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{cgene}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{cgene}\mathbin{::}(\Conid{Num}\;\Varid{b},\Conid{Eq}\;\Varid{a})\Rightarrow ()+((\Varid{a},\Varid{b}),[\mskip1.5mu (\Varid{a},\Varid{b})\mskip1.5mu])\to [\mskip1.5mu (\Varid{a},\Varid{b})\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{cgene}\mathrel{=}\alt{\Varid{nil}}{\Varid{funCgene}}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-Geração dos jogos da fase de grupos:
+
+A funCgene é definida da seguinte maneira:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{19}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{funCgene}\mathbin{::}(\Conid{Eq}\;\Varid{a},\Conid{Num}\;\Varid{b})\Rightarrow ((\Varid{a},\Varid{b}),[\mskip1.5mu (\Varid{a},\Varid{b})\mskip1.5mu])\to [\mskip1.5mu (\Varid{a},\Varid{b})\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{funCgene}\;\Varid{arg}\mathrel{=}\mathbf{case}\;\Varid{lu}\;\mathbf{of}{}\<[E]%
+\\
+\>[B]{}\hsindent{19}{}\<[19]%
+\>[19]{}\Conid{Nothing}\to \Varid{cons}\;\Varid{arg}{}\<[E]%
+\\
+\>[B]{}\hsindent{19}{}\<[19]%
+\>[19]{}\Conid{Just}\;\Varid{n}\to (\Varid{cons}\comp ((\Varid{id}\times(\mathbin{+}\Varid{n}))\times(\Varid{filter}\;(\lambda \Varid{tuplo}\to (\p1\;\Varid{tuplo})\not\equiv \Varid{esq}))))\;\Varid{arg}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mathbf{where}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{lu}\mathrel{=}(\uncurry{(\Varid{\Conid{List}.lookup})}\comp (\p1\times\Varid{id}))\;\Varid{arg}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{esq}\mathrel{=}(\p1\comp \p1)\;\Varid{arg}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+A nossa ideia com a funCgene foi primeiramente verificar se uma determinada "chave"
+existia numa lista de tuplos e se sim, qual era o valor associado. Para isso tivemos
+recurso à lookup definida no modulo List.hs . A função lookup desse modulo recebe a chave
+e a lista sem ser sub a forma de par. Devido a isso usamos a função uncurry.
+
+Após esta fase temos 2 hipoteses, ou a chave foi encontrada e temos Just e o valor associado, 
+ou não foi encontrada e temos Nothing. 
+
+Se tivermos Nothing o que esta função faz é invocar a função cons definida em Cp.hs e damos como 
+argumento o par recebido. 
+
+Caso o valor tenha sido encontrado, então vamos aplicar uma função à esquerda e uma função
+à direita no par recebido como argumento. À esquerda, mantemos a chave e aumentamos uma certa 
+quantia no valor. Essa quantia foi o valor encontrado pela função lookup. 
+Como nós não queremos ter chaves repetidas, ao lado esquerdo simplesmente invocamos a 
+função filter para eliminar o elemento com a tal chave encontrado pela função lookup. 
+
+Após estas duas operações é invocada a função cons definida no modulo Cp.hs .
+
+A função pairup definimos da seguinte forma:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{pairup}\mathrel{=}(\alt{\Varid{nil}}{\Varid{fun}}\comp \Varid{outList}){}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mathbf{where}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{fun}\mathrel{=}\mathsf{conc}\comp \conj{\Varid{fun2}}{\Varid{pairup}\comp \p2}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{fun2}\;(\Varid{x},\Varid{y})\mathrel{=}\map \;(\lambda \Varid{e}\to (\Varid{x},\Varid{e}))\;\Varid{y}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+A nossa função pairup pode ser representada da seguinte forma:
+
+\begin{eqnarray*}
+\xymatrix{
+  (A \times A)^* \\
+  & &  1 + (A, A^*)\ar[ull]_{\ensuremath{\alt{\Varid{nil}}{\Varid{fun}}}}\\
+  A^*\ar[urr]_{\ensuremath{\Varid{outList}}}\ar[uu]^{\ensuremath{\Varid{pairup}}} 
+}
+\end{eqnarray*}
+
+O diagrama da nossa função auxiliar fun, é o seguinte:
+
+\begin{eqnarray*}
+\xymatrix@C=1.2cm{
+  (A, A^*)\ar[rr]^{\ensuremath{\conj{\Varid{fun2}}{\Varid{pairup}\comp \p2}}} & & (A^*,A^*)\ar[rr]^{\ensuremath{\mathsf{conc}}} & & (A \times A)^*
+}
+\end{eqnarray*}
+
+A nossa função \ensuremath{\Varid{fun2}} é  muito similar à função zip. A função zip associa elementos de 2 listas, 
+originando uma lista com tuplos das respetivas associações. 
+A nossa função \ensuremath{\Varid{fun2}} simplesmente um elemento a cada um dos elementos de uma lista, originando 
+na mesma tuplos.
+
+Passando para a função, matchResult, numa primeira abordargem defimos a matchResult da seguinte forma:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\Varid{matchResult}\;\Varid{f}\;\Varid{p}\mathrel{=}[\mskip1.5mu (e_1 ,\Varid{pontos1}),(e_2 ,\Varid{pontos2})\mskip1.5mu]{}\<[E]%
+\\
+\>[5]{}\mathbf{where}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}e_1 \mathrel{=}\p1\;\Varid{p}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}e_2 \mathrel{=}\p2\;\Varid{p}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\Varid{result}\mathrel{=}\Varid{f}\;\Varid{p}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\Varid{pontos1}\mathrel{=}\Varid{getpontuacao}\;\Varid{result}\;e_1 {}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\Varid{pontos2}\mathrel{=}\Varid{getpontuacao}\;\Varid{result}\;e_2 {}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Esta função é bastante simples, mas não trabalha como uma função de point free.
+Após resolvermos todos os exercícios do projeto, proposemo-nos em adaptar certas 
+funções para point free. A match result foi uma delas. Sendo assim a nossa função matchResult 
+ficou definida da seguinte forma:
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{pairup}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{matchResult}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{glt}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{matchResult}\;\Varid{f}\mathrel{=}\Varid{getPointsMatch}\comp \conj{\Varid{id}}{\Varid{f}}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
+
+As funções auxiliares a matchResult são:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{23}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{33}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{getpontuacao}\mathbin{::}(\Conid{Team},\Conid{Maybe}\;\Conid{Team})\to \mathbb{Z}{}\<[E]%
+\\
+\>[B]{}\Varid{getpontuacao}\;(\Varid{e},\Varid{r})\mathrel{=}\mathbf{case}\;\Varid{r}\;\mathbf{of}{}\<[E]%
+\\
+\>[B]{}\hsindent{23}{}\<[23]%
+\>[23]{}\Conid{Nothing}\to \mathrm{1}{}\<[E]%
+\\
+\>[B]{}\hsindent{23}{}\<[23]%
+\>[23]{}\Conid{Just}\;\Varid{t}\to \mathbf{if}\;\Varid{t}\equiv \Varid{e}\;\mathbf{then}\;\mathrm{3}{}\<[E]%
+\\
+\>[23]{}\hsindent{10}{}\<[33]%
+\>[33]{}\mathbf{else}\;\mathrm{0}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{getPointsMatch}\mathbin{::}(\Conid{Match},\Conid{Maybe}\;\Conid{Team})\to [\mskip1.5mu (\Conid{Team},\mathbb{Z})\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{getPointsMatch}\mathrel{=}\mathsf{conc}\comp (\Varid{fmr}\times\Varid{fmr})\comp \conj{\p1\times\Varid{id}}{\p2\times\Varid{id}}{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\mathbf{where}{}\<[E]%
+\\
+\>[5]{}\hsindent{4}{}\<[9]%
+\>[9]{}\Varid{fmr}\mathrel{=}\Varid{singl}\comp \conj{\p1}{\Varid{getpontuacao}}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Um diagrama como a função matchResult, junto com a getPointsMatch funcionam em conjunto:
+
+\begin{eqnarray*}
+\xymatrix{
+  (E \times \ensuremath{\N_0})^* & & (E \times \ensuremath{\N_0})^* \times (E \times \ensuremath{\N_0})\ar[ll]^{\ensuremath{\uncurry{(\mathbin{+\!\!\!+})}}}\\
+  & & & & ((E \times R) \times (E \times R))\ar[ull]_{\ensuremath{\Varid{fmr}\times\Varid{fmr}}}\\
+  (f \ (E \times E))\ar[rr]^{\ensuremath{\conj{\Varid{id}}{\Varid{f}}}}\ar[uu]^{\ensuremath{\Varid{matchResult}}} & & ((E \times E) \times R)\ar[urr]^{\ensuremath{\conj{\p1\times\Varid{id}}{\p2\times\Varid{id}}}}\ar[uu]^{\ensuremath{\Varid{getPointsMatch}}}\\
+}
+\end{eqnarray*}
+
+A função fmr é representada da seguinte forma:
+
+\begin{eqnarray*}
+\xymatrix{
+  (E \times R)\ar[rr]^{\ensuremath{\conj{\p1}{\Varid{getpontuacao}}}} & & (E \times \ensuremath{\N_0})\ar[rr]^{\ensuremath{\Varid{singl}}} & & (E,Nat)^* 
+}
+\end{eqnarray*}
+
+Passaremos a explicar cada passo desta nossa função matchResult. Primeiramente a nossa função 
+pega na função recebida como argumento e aplica à partida em questão. De forma a não perder quais
+as equipas que jogaram, é originado o par (Partida, Resultado) ou ((Equipa 1, Equipa 2), Resultado).
+A etapa seguinte é tentar organizar este tuplo em (equipa,resultado). Para isto utilizamos mais uma
+vez a função split que transforma o par ((Equipa 1, Equipa 2), Resultado) no par 
+((Equipa 1, Resultado), (Equipa 2, Resultado)). Quisemos organizar assim para ser mais
+fácil a utilização da nossa função getpontuacao. Após isto invocamos a função fmr que que 
+transforma o último par em ([(Equipa 1, Pontuação 1)], [(Equipa 2, Pontuação 1)]), utilizando
+a função getpontuacao como auxiliar. Após esta fase basta apenas adaptar o tipo deste resultado para 
+o pretendido que é [(Equipa 1, Pontuação 1), (Equipa 2, Pontuação 1)]. Para isso basta invocar 
+a função conc definida no modulo Cp.hs.
+
+Passando para a função glt, o diagrama da nossa função glt é o seguinte:
+
+\begin{eqnarray}
+\xymatrix{
+  A^*\ar[rr]^{\ensuremath{\Varid{glt}}} & & A + (A^* \times A^*)
+}
+\end{eqnarray}
+
+A nossa função glt, quando recebe uma lista com apenas um único elemento, injeta esse mesmo
+elemento à esquerda numa alternativa. Caso contrário, invoca a função \ensuremath{\Varid{splitAt}} do prelude do 
+Haskell. Esta função necessita de um indice para separar a lista. Este indice neste exercício 
+será sempre o meio da lista.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{glt}\mathrel{=}(\Varid{id}+(\uncurry{\Varid{splitAt}}\comp \conj{\Varid{metade}\comp \length }{\Varid{id}}\comp \Varid{cons}))\comp \Varid{outP2}{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\mathbf{where}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\Varid{metade}\;\Varid{n}\mathrel{=}\Varid{n}\div \mathrm{2}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
 \subsubsection*{Versão probabilística}
+Implementamos a função pinitKnockoutStage da seguinte forma:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{pinitKnockoutStage}\mathbin{::}[\mskip1.5mu [\mskip1.5mu \Conid{Team}\mskip1.5mu]\mskip1.5mu]\to \fun{Dist}\;({\LTree}\;\Conid{Team}){}\<[E]%
+\\
+\>[B]{}\Varid{pinitKnockoutStage}\mathrel{=}\llparenthesis\, \alt{\Varid{createDist}}{\Varid{tupleDist}}\,\rrparenthesis\comp \Varid{initKnockoutStage}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\mathbf{where}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{createDist}\;\Varid{t}\mathrel{=}\Conid{D}\;[\mskip1.5mu (\Conid{Leaf}\;\Varid{t},\mathrm{1})\mskip1.5mu]{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Varid{tupleDist}\mathrel{=}\uncurry{(\Varid{joinWith}\;\overline{\Conid{Fork}})}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Esta função primeiramente invoca a função initKnockoutStage definida já na versão não probabilística.
+
+Após isto nós obtemos uma LTree já com as partidas formadas. Agora basta apenas iniciar 
+as probabilidades.
+
+Para isto usamos a cataLTree defina no module LTree.hs. Esta função para as folhas,
+cria a distribuição com probabilidade igual a 100\%. Como os nodos são apenas 1 equipa,
+a probabilidade de elas mesmas "ganharem" é 100\%, dai atribuirmos essa probabilidade.
+
+Para os nodos Fork, é aplicada a função tupleDist. Esta função cria o Fork, pois a cataLTree
+"destroi" a LTree e é necessário contrui-la outra vez. Depois disso, como as subarvores são
+distribuição de LTree, precisamos de utilizar a função joinWith definida em Probability.hs 
+de forma a criar as combinações das distribuições.
+
+Um esquema a demonstrar como esta função funciona:
+
+\begin{eqnarray}
+\xymatrix{
+  Dist (LTree Team)                                                                 & & Team + (Dist\ (LTree\ Team) \times Dist\ (LTree\ Team))\ar[ll]_(0.65){\ensuremath{\alt{\Varid{createDist}}{\Varid{tupleDist}}}}\\
+  LTree Team \ar[u]^{\ensuremath{\llparenthesis\, \alt{\Varid{createDist}}{\Varid{tupleDist}}\,\rrparenthesis}}\ar[rr]_(0.35){\ensuremath{\mathsf{out}_{\tiny\ \textit{LTree}}}} & & Team + (LTree\ Team \times LTree\ Team) \ar[u]_{\ensuremath{\Varid{id}\mathbin{+}\Varid{pgroupWinners}\times\Varid{pgroupWinners}}}\\
+  (Team^*)^*\ar[u]^{\ensuremath{\Varid{initKnockoutStage}}}
+}
+\end{eqnarray}
+
+Partindo para  a função pgroupWinners, esta nossa função ficou definida da seguinte forma:
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{pinitKnockoutStage}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
 \>[B]{}\Varid{pgroupWinners}\mathbin{::}(\Conid{Match}\to \fun{Dist}\;(\Conid{Maybe}\;\Conid{Team}))\to [\mskip1.5mu \Conid{Match}\mskip1.5mu]\to \fun{Dist}\;[\mskip1.5mu \Conid{Team}\mskip1.5mu]{}\<[E]%
 \\
-\>[B]{}\Varid{pgroupWinners}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{pmatchResult}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{pgroupWinners}\;\Varid{f}\mathrel{=}\Varid{pmatchResult}\comp \conj{\Varid{sequence}\comp \map \;(\lambda \Varid{m}\to (\Varid{f}\;\Varid{m}))}{\Varid{id}}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
+
+Esta função primeiramente gera as probabilidade do resultado de todas as partidas e de seguida invoca
+a função pmatchResult.
+
+A função pmatchResult está implementada assim:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{14}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{getPoints}\mathbin{::}([\mskip1.5mu \Conid{Match}\mskip1.5mu],[\mskip1.5mu \Conid{Maybe}\;\Conid{Team}\mskip1.5mu])\to [\mskip1.5mu (\Conid{Team},\mathbb{Z})\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{getPoints}\mathrel{=}{}\<[14]%
+\>[14]{}\llparenthesis\, \alt{\Varid{nil}}{\mathsf{conc}\comp (\Varid{getPointsMatch}\times\Varid{id})}\,\rrparenthesis\comp \uncurry{\Varid{zip}}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{pmatchResult}\mathbin{::}(\fun{Dist}\;[\mskip1.5mu \Conid{Maybe}\;\Conid{Team}\mskip1.5mu],[\mskip1.5mu \Conid{Match}\mskip1.5mu])\to \fun{Dist}\;[\mskip1.5mu \Conid{Team}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\Varid{pmatchResult}\;(\Varid{resultados},\Varid{partidas})\mathrel{=}\Varid{mapD}\;(\Varid{best}\;\mathrm{2}\comp \Varid{consolidate}\comp \Varid{getPoints}\comp \conj{\underline{\Varid{partidas}}}{\Varid{id}})\;\Varid{resultados}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+A função pmatchResult usa como função auxiliar getPoints. Esta função getPoints é praticamente 
+igual à função getPointsMatch, até que não é por acaso que a utiliza. 
+A diferença está nos argumentos, em que getPointsMatch recebe um tuplo (Match, Maybe Team) e 
+getPoints recebe ([Match],[Maybe Team]).
+ 
+A função pmatchResult simplesmente aplica uma sequência de funções às probabilidades
+geradas na função pgroupWinners. Primeiramente é gerado o tuplo ([Match],[Maybe Team])
+para usarmos a função getPoints. Depois invocamos a função já definida previamente pela equipa
+docente, a consolidate, de forma a obtermos as pontuações finais de cada equipa no final do grupo.
+Depois invocamos mais uma vez uma função já previamente definida, a best, que vai buscar a n melhores
+equipas em cada grupo. Para aplicar estas funções às probabilidades, utilizamos a função
+mapD que aplica uma certa função ao conteúdo de uma distribuição.
+
+A pedido da equipa docente vamos testar as funções pwinner e winner para rankings diferentes.
+
+Sendo assim manipulamos os rankings para a seguinte forma:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{10}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{rankings}\mathrel{=}[\mskip1.5mu {}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Argentina\char34},\mathrm{4.4}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Australia\char34},\mathrm{4.0}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Belgium\char34},\mathrm{4.2}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Brazil\char34},\mathrm{4.7}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Cameroon\char34},\mathrm{4.0}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Canada\char34},\mathrm{4.0}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Costa~Rica\char34},\mathrm{4.1}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Croatia\char34},\mathrm{4.7}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Denmark\char34},\mathrm{4.3}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Ecuador\char34},\mathrm{4.0}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 England\char34},\mathrm{3.8}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 France\char34},\mathrm{5.0}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Germany\char34},\mathrm{5.0}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Ghana\char34},\mathrm{3.9}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Iran\char34},\mathrm{4.0}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Japan\char34},\mathrm{4.1}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Korea~Republic\char34},\mathrm{3.9}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Mexico\char34},\mathrm{4.5}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Morocco\char34},\mathrm{4.2}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Netherlands\char34},\mathrm{4.8}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Poland\char34},\mathrm{4.2}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Portugal\char34},\mathrm{5.5}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Qatar\char34},\mathrm{3.9}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Saudi~Arabia\char34},\mathrm{3.9}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Senegal\char34},\mathrm{4.3}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Serbia\char34},\mathrm{3.8}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Spain\char34},\mathrm{4.0}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Switzerland\char34},\mathrm{4.4}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Tunisia\char34},\mathrm{4.1}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 USA\char34},\mathrm{4.4}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Uruguay\char34},\mathrm{4.5}),{}\<[E]%
+\\
+\>[B]{}\hsindent{10}{}\<[10]%
+\>[10]{}(\text{\ttfamily \char34 Wales\char34},\mathrm{4.3})\mskip1.5mu]{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+O resultado da execução de winner foi:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbin{*}\Conid{Main}\mathbin{>}\Varid{winner}{}\<[E]%
+\\
+\>[B]{}\text{\ttfamily \char34 Portugal\char34}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+O resultado da execução de pwinner foi:
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{4}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{6}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{16}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{17}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\mathbin{*}\Conid{Main}\mathbin{>}\Varid{pwinner}{}\<[E]%
+\\
+\>[B]{}\hsindent{4}{}\<[4]%
+\>[4]{}\text{\ttfamily \char34 Portugal\char34}\;{}\<[16]%
+\>[16]{}\mathrm{33.7}\mathbin{\%}{}\<[E]%
+\\
+\>[4]{}\hsindent{2}{}\<[6]%
+\>[6]{}\text{\ttfamily \char34 France\char34}\;{}\<[16]%
+\>[16]{}\mathrm{14.7}\mathbin{\%}{}\<[E]%
+\\
+\>[4]{}\hsindent{1}{}\<[5]%
+\>[5]{}\text{\ttfamily \char34 Germany\char34}\;{}\<[16]%
+\>[16]{}\mathrm{14.0}\mathbin{\%}{}\<[E]%
+\\
+\>[B]{}\text{\ttfamily \char34 Netherlands\char34}\;{}\<[17]%
+\>[17]{}\mathrm{8.8}\mathbin{\%}{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\text{\ttfamily \char34 Croatia\char34}\;{}\<[17]%
+\>[17]{}\mathrm{5.6}\mathbin{\%}{}\<[E]%
+\\
+\>[5]{}\hsindent{1}{}\<[6]%
+\>[6]{}\text{\ttfamily \char34 Mexico\char34}\;{}\<[17]%
+\>[17]{}\mathrm{3.8}\mathbin{\%}{}\<[E]%
+\\
+\>[5]{}\hsindent{1}{}\<[6]%
+\>[6]{}\text{\ttfamily \char34 Brazil\char34}\;{}\<[17]%
+\>[17]{}\mathrm{3.8}\mathbin{\%}{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\text{\ttfamily \char34 Uruguay\char34}\;{}\<[17]%
+\>[17]{}\mathrm{2.8}\mathbin{\%}{}\<[E]%
+\\
+\>[5]{}\hsindent{4}{}\<[9]%
+\>[9]{}\text{\ttfamily \char34 USA\char34}\;{}\<[17]%
+\>[17]{}\mathrm{2.7}\mathbin{\%}{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\text{\ttfamily \char34 Senegal\char34}\;{}\<[17]%
+\>[17]{}\mathrm{2.0}\mathbin{\%}{}\<[E]%
+\\
+\>[B]{}\text{\ttfamily \char34 Switzerland\char34}\;{}\<[17]%
+\>[17]{}\mathrm{1.8}\mathbin{\%}{}\<[E]%
+\\
+\>[B]{}\hsindent{3}{}\<[3]%
+\>[3]{}\text{\ttfamily \char34 Argentina\char34}\;{}\<[17]%
+\>[17]{}\mathrm{1.6}\mathbin{\%}{}\<[E]%
+\\
+\>[3]{}\hsindent{4}{}\<[7]%
+\>[7]{}\text{\ttfamily \char34 Wales\char34}\;{}\<[17]%
+\>[17]{}\mathrm{1.6}\mathbin{\%}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\text{\ttfamily \char34 Denmark\char34}\;{}\<[17]%
+\>[17]{}\mathrm{1.2}\mathbin{\%}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\text{\ttfamily \char34 Morocco\char34}\;{}\<[17]%
+\>[17]{}\mathrm{0.7}\mathbin{\%}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\text{\ttfamily \char34 Tunisia\char34}\;{}\<[17]%
+\>[17]{}\mathrm{0.3}\mathbin{\%}{}\<[E]%
+\\
+\>[5]{}\hsindent{1}{}\<[6]%
+\>[6]{}\text{\ttfamily \char34 Poland\char34}\;{}\<[17]%
+\>[17]{}\mathrm{0.3}\mathbin{\%}{}\<[E]%
+\\
+\>[6]{}\hsindent{1}{}\<[7]%
+\>[7]{}\text{\ttfamily \char34 Spain\char34}\;{}\<[17]%
+\>[17]{}\mathrm{0.2}\mathbin{\%}{}\<[E]%
+\\
+\>[6]{}\hsindent{1}{}\<[7]%
+\>[7]{}\text{\ttfamily \char34 Japan\char34}\;{}\<[17]%
+\>[17]{}\mathrm{0.1}\mathbin{\%}{}\<[E]%
+\\
+\>[B]{}\text{\ttfamily \char34 Costa~Rica\char34}\;{}\<[17]%
+\>[17]{}\mathrm{0.1}\mathbin{\%}{}\<[E]%
+\\
+\>[B]{}\hsindent{6}{}\<[6]%
+\>[6]{}\text{\ttfamily \char34 Canada\char34}\;{}\<[17]%
+\>[17]{}\mathrm{0.1}\mathbin{\%}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Tendo em conta o nosso novo ranking, os resultados são os esperados.
 
 %----------------- Índice remissivo (exige makeindex) -------------------------%
 
