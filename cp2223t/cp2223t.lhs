@@ -1116,53 +1116,276 @@ Valoriza-se a escrita de \emph{pouco} código que corresponda a soluções
 simples e elegantes.
 
 \subsection*{Problema 1}
-Funções auxiliares pedidas:
-\begin{code}
+Após analisar o contexto do problema apresentado, concluímos que se trata de um problema onde iremos recorrer à lei da recursividade mútua.
+É nos apresentado a seguinte função, derivada da sequência de Fibonacci usando um ciclo-for, tal que cada termo subsequente aos três primeiros corresponde à soma dos três anteriores:
+\begin{spec}
+  f a b c 0 = 0 
+  f a b c 1 = 1
+  f a b c 2 = 1
+  f a b c (n +3) = a ∗f a b c (n +2)+b ∗f a b c (n +1)+c ∗f a b c n
+\end{spec}
+O problema pede então que seja aplicada a seguinte regra:
+\begin{spec}
+fib 0 = 1
+fib (n+1) = f n
 
-loop a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
+f 0 = 1
+f(n+1) = fib n + f n
+\end{spec}
+
+Onde iremos obter o seguinte:
+\begin{spec}
+fib' = p1 . for loop init where
+  loop(fib,f) = (f,fib+f)
+  init = (1,1)
+\end{spec}
+
+Deste modo podemos concluir o seguinte:
+\begin{itemize}
+\item O ciclo loop irá ter tantos argumentos quanto o número de funções mutuamente exclusivas.
+Neste caso serão 3 argumentos, pois temos 3 termos inciais.
+\item As funções serão respetivamente, f,h e g.
+\item Em init usam se os resultados dos casos base respetivamente, ((1,1),0).
+\end{itemize}
+
+E é nos apresentado o que devemos resolver:
+\begin{spec}
+fbl a b c = wrap ·for (loop a b c) initial
+\end{spec}
+
+Começamos com a variável "initial", que vai ser definida por ((1,1),0), porque são os valores dos resultados iniciais dos coeficientes da sequência númerica, definidos no enunciado, que correspondem
+às funções também definidas incialmente ((g,h),f).
+\begin{code}
 initial = ((1,1),0)
+\end{code}
+
+De seguida definimos a função "wrap", que tem como funcionalidade ir buscar o segundo par de \textbf{for (loop a b c) initial}:
+\begin{code}
 wrap = p2
 \end{code}
 
+Por fim deduzimos a função "loop" atraves de leis de coprodutos e obtivemos o seguinte:
+\begin{code}
+loop a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
+\end{code}   
+
+Funções auxiliares:
+
+\begin{spec}
+g 0 = 1
+g (n+1) = a ((g n, h n), f n)
+
+h 0 = 1
+h (n+1) = b ((g n, h n), f n)
+
+f 0 = 0
+f (n+1) = c ((g n, h n), f n)
+\end{spec}
+
+Dedução da função loop:
+\begin{eqnarray*}
+\start
+
+      |lcbr(
+        g 0 = 1
+  )(
+        g(n+1) = a ∗ g a b c n + b ∗ h a b c n + c ∗ f a b c n
+  )|
+      |lcbr(
+        h 0 = 1
+  )(
+        h (n+1) = g n
+  )|
+
+      |lcbr(
+        f 0 = 0
+  )(
+        f (n+1) = h n
+  )|
+
+%
+\just\equiv{ Coprodut laws (Eq-x, ...) }
+%
+
+\begin{spec}
+      f a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
+\end{spec}   
+
+
+\end{eqnarray*}
+
+Diagrama da função loop:
+\begin{eqnarray*}
+\xymatrix{
+  (S^*)^* & & S + S \times (S^*)^*\ar[ll]_{gene}\\
+  Exp S S \ar[u]^{post}\ar[rr]_{outExp} & & S + S \times (S^*) \ar[u]_{id + id \times post}
+}
+\end{eqnarray*}
+
+Definição do loop, point-wise:
+\begin{spec}
+<<g,h>,f> a b c = (|<<[1,sum . (sum) >< id . ((a*) >< (b*)) >< (c*)],[1,p1.p1]>,[0,p2.p1]>|)
+\end{spec}
+
+Definição do loop, point-free:
+\begin{spec}
+loop a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
+\end{spec}
+
+\textbf{Valorização}
+\begin{code}
+testa a b c = map (fbl a b c) x where x = [1..20]
+testb a b c = map (f a b c) x where x = [1..20]  
+
+test11a = testa 1 2 3
+test11b = testb 1 2 3
+test22a = testa (-2) 1 5
+test22b = testb (-2) 1 5
+\end{code}
+
+\begin{spec}
+*Main> :set +s
+
+*Main> test11a
+[1,1,3,8,17,42,100,235,561,1331,3158,7503,17812,42292,100425,238445,566171,1344336,3192013,7579198]
+(0.07 secs, 472,216 bytes)
+*Main> test11b
+[1,1,3,8,17,42,100,235,561,1331,3158,7503,17812,42292,100425,238445,566171,1344336,3192013,7579198]
+(0.29 secs, 152,214,104 bytes)
+
+*Main> test22a
+[1,1,-1,8,-12,27,-26,19,71,-253,672,-1242,1891,-1664,-991,9773,-28857,62532,-105056,128359]
+(0.07 secs, 466,936 bytes)
+*Main> test22b
+[1,1,-1,8,-12,27,-26,19,71,-253,672,-1242,1891,-1664,-991,9773,-28857,62532,-105056,128359]
+(0.28 secs, 152,580,536 bytes)
+\end{spec}
+Assim é possível verificar que a função \textbf{fbl} é 4 vezes mais eficiente que a \textbf{f}, em termos de tempo e (+-)300 vezes mais eficiente em termos de memória usada.
+
 \subsection*{Problema 2}
 Gene de |tax|:
-\begin{code}
 
+A função out pode-se retirar do diagrama apresentado no enunciado. Basicamente se a lista tiver apenas um elemento, injetamo-lo à esquerda. Se a lista tiver uma cabeça e uma cauda, injetamos à direita o par (cabeça,[cauda]).
+\begin{code}
 outP2 :: [a] -> Either a (a,[a])
 outP2 [x] = i1 x
 outP2 (h:t) = i2 (h,t)
+\end{code}
 
+A função contaEspaços é apenas uma função auxiliar que conta o numero de espaços iniciais de uma String, que será aplicada à função que trata as diretorias e subdiretorias.
+\begin{code}
 contaEspacos :: String -> Integer
 contaEspacos "" = 0
 contaEspacos (' ':t) = 1 + contaEspacos t
 contaEspacos _ = 0
+\end{code}
 
+Função auxiliar que apenas adiciona um elemento ao final de uma determinada matriz.
+\begin{code}
 addLast :: (String, Integer) -> [[(String,Integer)]] -> [[(String,Integer)]]
 addLast t l = (take (length l - 1) l) ++ [last(l) ++ [t]]
+\end{code}
 
+
+A função a seguir recebe uma matriz de tuplos, que correspondem às diretorias e os respetivos número de espaços e um tuplo a ser inserido nessa mesma matriz. Ou seja a função vai determinar onde é inserido esse tuplo na matriz. Caso o número de espaços da cabeça do última lista da matriz for menor que o numero de espaços do elemento a inserir, então quer dizer que o tuplo (s,n) é subdiretoria desse elemento e adicionamos ao fim da lista com a função addLast acima descrita.
+\begin{code}
 funAux :: [[(String,Integer)]]-> (String, Integer)  -> [[(String,Integer)]]
 funAux [] x = [[x]]
 funAux l (s,n) | p2(head(last(l))) < n = addLast (s,n) l
                | otherwise = l ++ [[(s,n)]]
+\end{code}
 
+A seguir está um exemplo para melhor compreensão:
+
+funAux 
+
+[ 
+
+  [("General and References", 0),("    Document Types", 4), ("        Surveys and overviews", 8),  ("        Reference works",8)]
+
+]\begin{eqnarray*}
+\xymatrix{
+  (S^*)^* & & S + S \times (S^*)^*\ar[ll]_{gene}\\
+  Exp S S \ar[u]^{post}\ar[rr]_{outExp} & & S + S \times (S^*) \ar[u]_{id + id \times post}
+}
+\end{eqnarray*}
+
+("        General conference proceedings", 8)
+
+[ 
+
+  [("General and References", 0),("    Document Types", 4), ("        Surveys and overviews", 8),  ("        Reference works",8), ("        General conference proceedings", 8)]
+
+]
+
+Outro exemplo: 
+
+funAux 
+
+[ 
+
+  [("Document Types", 0), ("    Surveys and overviews", 4),  ("    Reference works",4), ("    General conference proceedings", 4)]
+
+]
+
+("Cross-computing tools and techniques", 0)
+
+[ 
+
+  [("Document Types", 0), ("    Surveys and overviews", 4),  ("    Reference works",4), (    "General conference proceedings", 4)],
+  [("Cross-computing tools and techniques", 0)]
+
+]
+
+
+Os resultados dos seguintes testes estão corretos.
+\begin{code}
 teste21 = expDepth acm_tree == 7
 teste22 = length (expOps acm_tree) == 432
 teste23 = length (expLeaves acm_tree) == 1682
+\end{code}
 
+A função fun pega numa lista de strings e passa para uma matriz de Strings de acordo com as subdiretorias, isto é, cada lista de strings corresponde a uma diretoria. Uma diretoria é definida de acordo com o número de espaços e para isso primeiro contamos o número de espaços de 4 em 4 para criar as respetivas listas de strings. No fim apagamos os espaços que delimitavam as subdiretorias com a função drop. 
+\begin{code}
 fun :: [String] -> [[String]]
 fun = map (map (\(s,n) -> drop 4 s)) . foldl funAux [] . map (\s -> (s,contaEspacos s))
+\end{code}
 
+
+
+
+O gene é facilmente retirado do diagrama apresentado no enunciado.
+\begin{eqnarray*}
+\xymatrix{
+S^* \ar[r]^{out} \ar[rd]^{gene} & S + S \times S^*\ar[d]^{id + (id \times fun)}\\
+&S + S \times (S^*)^*}
+\end{eqnarray*}
+
+\begin{code}
 gene = (id -|- (id >< fun)) . outP2
 \end{code}
+
+
+
 Função de pós-processamento:
 \begin{code}
 
 auxPost :: (String,[[[String]]]) -> [[String]]
 auxPost (s,lis) = [s]:(((map(\l -> s:l)) . concat) lis)
-
-post = cataExp (either (singl . singl) auxPost)
-
 \end{code}
+
+A função post gera a matriz a partir da ExpTree gerada pela funçao tax
+
+\begin{code}
+post = cataExp (either (singl . singl) auxPost)
+\end{code}
+
+\begin{eqnarray*}
+\xymatrix{
+  (S^*)^* & & S + S \times (S^*)^*\ar[ll]_{gene}\\
+  Exp S S \ar[u]^{post}\ar[rr]_{outExp} & & S + S \times (S^*) \ar[u]_{id + id \times post}
+}
+\end{eqnarray*}
 
 \subsection*{Problema 3}
 
@@ -1227,7 +1450,14 @@ gsq t = (qc,map (\s -> (s,paux)) qv)
           qv | paux /= -1 = tail l
              | otherwise = []
 \end{code}
-%Aqui tenho que inserir o esquema do anamorfismo
+O esquema do anamorfismo \textit{squares} é o seguinte:
+\begin{eqnarray}
+\xymatrix@@C=1.3cm{
+|RoseTree|\ |Square|\ar@@/^1pc/[rr]^{|out|} & \cong & |Square><RoseTree|\ |Square|^* \ar@@/^1pc/[ll]^{|in|}\\
+|Square >< Int|\ar[u]^{squares} \ar[rr]_{gsq} & & |Square >< (Square >< Int)|^*\ar[u]_{|id >< squares|^*}
+}
+\end{eqnarray}
+
 
 Podemos definir a função rose2 list através do catamorfismo de RoseTrees que tem como gene \textit{gr2l}, esta função transforma uma RoseTree numa lista e será usada para 
 extrair os quadrados da árvore auxiliar.
@@ -1240,9 +1470,22 @@ rose2List = cataRose gr2l
 
 gr2l = cons . (id >< concat)
 \end{code}
-%esquema do catamorfismo
+O esquema do catamorfismo \textit{rose2List} tem o seguinte aspeto:
+\begin{eqnarray}
+\xymatrix@@C=1.3cm{
+|Square|^* & & Square \times (Square^*)^* \ar[ll]_{gr2l}\\
+|RoseTree|\ |Square|\ar@@/^1pc/[rr]^{|out|} \ar[u]^{rose2List} & \cong & |Square><RoseTree|\ |Square|^* \ar@@/^1pc/[ll]^{|in|} \ar[u]_{id\times rose2List^*}
+}
+\end{eqnarray}
 
-%esquema do hilomorfismo sierpinski
+Logo, através dos esquemas já construidos, conseguimos elaborar o esquema do hilomofismo \textit{sierpinski} da seguinte forma:
+\begin{eqnarray}
+\xymatrix@@C=1.3cm{
+|Square|^* & & Square \times (Square^*)^* \ar[ll]_{gr2l}\\
+|RoseTree|\ |Square|\ar@@/^1pc/[rr]^{|out|} \ar[u]^{rose2List} & \cong & |Square><RoseTree|\ |Square|^* \ar@@/^1pc/[ll]^{|in|} \ar[u]_{id\times rose2List^*}\\
+|Square >< Int|\ar[u]^{squares} \ar[rr]_{gsq} & & |Square >< (Square >< Int)|^*\ar[u]_{|id >< squares|^*}
+}
+\end{eqnarray}
 
 Por fim, como a função \textit{constructSierp} é um hilomofismo de listas, é necessário definir o anamorfismo \textit{carpets} e o catamorfismo \textit{present} com os tipos presentes 
 na dica do enunciado. A função \textit{carpets} constroi a lista de todos os tapetes gerados até à profundidade passada como argumento. enquanto que a função \textit{present} percorre 
@@ -1266,7 +1509,6 @@ present ::[[Square]] -> IO [()]
 present = sequence . map(\l -> do {(drawSq l); await;})
 
 \end{code}
-%podia apresentar um esquema para o carpets e outro para o present nao sei
 \subsection*{Problema 4}
 \subsubsection*{Versão não probabilística}
 O gene de |consolidate'| é:
