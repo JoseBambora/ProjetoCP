@@ -1165,10 +1165,27 @@ post = cataExp (either (singl . singl) auxPost)
 \end{code}
 
 \subsection*{Problema 3}
+
+Para resolver o problema 3, temos de tal como mencionado no enunciado, definir os genes do hilomofismo \textit{sierpinski}, ou seja definir \textit{gr2l} e 
+\textit{gsq} e correr a funcão \textit{sierp4} depois, temos de definar as funções \textit{present} e \textit{carpets} de modo a podermos desenhar tapetes de Sierpinksi 
+de profundidade n.
+Assim, de modo a alcançar a solução pretendida, codificamos as seguintes funções:
+
+Primeiro começamos por definir a função \textit{squares} como um anamorfismo de RoseTrees com gene \textit{gsq}, esta função cria a árvore de suporte com todos os quadrados 
+a desenhar, para uma dada profundidade.
+
 \begin{code}
 
 squares = anaRose gsq
 
+\end{code}
+
+De modo a termos a lista dos nove quadrados gerados a partir de um quadrado inicial quando se faz uma iteração no tapete de Sierpinksi, tal como se pode ver nas figuras \ref{fig:sierp1} 
+e \ref{fig:sierp2} definimos a função \textit{geraquadrados}, que é bastante simples, pois apenas cria uma lista de quadrados, em que os quadrados gerados 
+têm coordenadas diferentes do que o quadrado original, adicionando ou removendo um terço do \textit{Side} do \textit{Square}, passado como parâmetro. E alterando o valor do comprimento 
+do lado do quadrado para um terço do valor original.
+
+\begin{code}
 geraquadrados :: Square -> [Square]
 geraquadrados ((x,y),c) = [
                            ((x+a,y+a),a),
@@ -1182,7 +1199,24 @@ geraquadrados ((x,y),c) = [
                            ((x+2*a,y),a)]
                 where
                   a = c/3
+\end{code}
 
+O gene \textit{gsq}, tem como função gerar os quadrados a desenhar a partir de um quadrado original e uma dada profundidade.
+
+Na forma como o definimos, utilizamos funções auxiliares, e para as explicarmos temos de observar o tipo dos argumentos com que trabalhamos. A primeira função que 
+definimos foi, \textit{paux}, esta função pega na segunda componente do tuplo passado como argumento (\textit{Square},\textit{Int}), ou seja, no inteiro que representa 
+o valor da profundidade e reduz esse valor uma unidade.
+
+A função auxiliar \textit{l}, também é bastante simples, simplesmente aplica a função \textit{geraquadrados} para o quadrado passado no tuplo (\textit{Square},\textit{Int}). 
+Ou seja, \textit{l} é a lista de nove quadrados gerados a partir do quadrado do argumento numa profundidade.
+
+Assim, de modo a apresentar o tipo desejado no resultado, \textit{(Square,[(Square,Int)])}, basta-nos pegar no primeiro quadrado gerado pela função \textit{geraquadrados} 
+que corresponde ao quadrado central, obtido através de \textit{qc} e aplicar a \textit{geraquadrados} para cada um dos quadrados gerados, decremento sempre a profundidade via \textit{paux} e juntar num tuplo, 
+ficando então com o resultado (quadrado inicial, lista de quadrados gerados a cada profundidade).
+
+O aplicar da função que gera os quadrados a todos os quadrados gerados é garantido graças ao \textit{map} que definimos, e a dimimuição da profundidade é feito por \textit{qv}.
+
+\begin{code}
 gsq :: (Square,Int) -> (Square,[(Square,Int)])
 gsq t = (qc,map (\s -> (s,paux)) qv)
       where
@@ -1191,11 +1225,37 @@ gsq t = (qc,map (\s -> (s,paux)) qv)
           qc = head l
           qv | paux /= -1 = tail l
              | otherwise = []
+\end{code}
+%Aqui tenho que inserir o esquema do anamorfismo
 
+Podemos definir a função rose2 list através do catamorfismo de RoseTrees que tem como gene \textit{gr2l}, esta função transforma uma RoseTree numa lista e será usada para 
+extrair os quadrados da árvore auxiliar.
+
+O gene \textit{gr2l} é bastante simples e fizemo-lo de forma \textit{point-free}. O que esta função faz é colocar à cabeça da lista a raiz da árvore e concatenar esse elemento 
+à concatenação de todos os elementos das subarvores. o que se obtem aplicando \textit{cons} ao produto de \texit{id} e \textit{concat}.
+
+\begin{code}
 rose2List = cataRose gr2l
 
 gr2l = cons . (id >< concat)
+\end{code}
+%esquema do catamorfismo
 
+%esquema do hilomorfismo sierpinski
+
+Por fim, como a função \textit{constructSierp} é um hilomofismo de listas, é necessário definir o anamorfismo \textit{carpets} e o catamorfismo \textit{present} com os tipos presentes 
+na dica do enunciado. A função \textit{carpets} constroi a lista de todos os tapetes gerados até à profundidade passada como argumento. enquanto que a função \textit{present} percorre 
+a lista de quadrados gerados por \textit{carpets}, desenhando-os esperando um segundo de intervalo.
+
+Para conseguirmos trabalhar com a função \textit{carpets} foi necessário criarmos um quadrado de exemplo, que serve como ponto de partida para a criação da lista dos tapetes de Sierpinksi. 
+Esse quadrado chama-se \textit{squareExemplo} e caso desejamos criar tapetes a partir de outro ponto de partida, basta alterar o quadrado definido.
+
+No caso da função \textit{carpets}, a lista de quadrados gerados obtem-se aplicando o hilomofismo \textit{sierpinski}, n vezes, uma vez para cada profundidade, o que se consegue através da 
+lista com elementos de 0 até n.
+
+A função \textit{present} simplesmente aplica a função \textit{drawSq} para todos os elementos da lista gerada por \textit{carpets}, esperando depois 1 segundo graças à função \text{await}.
+
+\begin{code}
 carpets :: Int -> [[Square]]
 carpets n = map (\n -> (sierpinski (squareExemplo,n))) [0..n]
 
@@ -1205,7 +1265,7 @@ present ::[[Square]] -> IO [()]
 present = sequence . map(\l -> do {(drawSq l); await;})
 
 \end{code}
-
+%podia apresentar um esquema para o carpets e outro para o present nao sei
 \subsection*{Problema 4}
 \subsubsection*{Versão não probabilística}
 O gene de |consolidate'| é:
