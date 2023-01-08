@@ -1116,15 +1116,19 @@ Valoriza-se a escrita de \emph{pouco} código que corresponda a soluções
 simples e elegantes.
 
 \subsection*{Problema 1}
+
 Após analisar o contexto do problema apresentado, concluímos que se trata de um problema onde iremos recorrer à lei da recursividade mútua.
 É nos apresentado a seguinte função, derivada da sequência de Fibonacci usando um ciclo-for, tal que cada termo subsequente aos três primeiros corresponde à soma dos três anteriores:
+
 \begin{spec}
   f a b c 0 = 0 
   f a b c 1 = 1
   f a b c 2 = 1
-  f a b c (n +3) = a ∗f a b c (n +2)+b ∗f a b c (n +1)+c ∗f a b c n
+  f a b c (n +3) = a * f a b c (n+2) + b * f a b c (n+1) + c * f a b c n
 \end{spec}
+
 O problema pede então que seja aplicada a seguinte regra:
+
 \begin{spec}
 fib 0 = 1
 fib (n+1) = f n
@@ -1141,20 +1145,22 @@ fib' = p1 . for loop init where
 \end{spec}
 
 Deste modo podemos concluir o seguinte:
+
 \begin{itemize}
-\item O ciclo loop irá ter tantos argumentos quanto o número de funções mutuamente exclusivas.
-Neste caso serão 3 argumentos, pois temos 3 termos inciais.
-\item As funções serão respetivamente, f,h e g.
-\item Em init usam se os resultados dos casos base respetivamente, ((1,1),0).
+  \item O ciclo loop irá ter tantos argumentos quanto o número de funções mutuamente exclusivas. Neste caso serão 3 argumentos, pois temos 3 termos inciais.
+  \item As funções serão respetivamente, f,h e g.
+  \item Em init usam se os resultados dos casos base respetivamente, ((1,1),0).
 \end{itemize}
 
 E é nos apresentado o que devemos resolver:
+
 \begin{spec}
 fbl a b c = wrap ·for (loop a b c) initial
 \end{spec}
 
 Começamos com a variável "initial", que vai ser definida por ((1,1),0), porque são os valores dos resultados iniciais dos coeficientes da sequência númerica, definidos no enunciado, que correspondem
 às funções também definidas incialmente ((g,h),f).
+
 \begin{code}
 initial = ((1,1),0)
 \end{code}
@@ -1165,6 +1171,7 @@ wrap = p2
 \end{code}
 
 Por fim deduzimos a função "loop" atraves de leis de coprodutos e obtivemos o seguinte:
+
 \begin{code}
 loop a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
 \end{code}   
@@ -1183,36 +1190,30 @@ f (n+1) = c ((g n, h n), f n)
 \end{spec}
 
 Dedução da função loop:
+
 \begin{eqnarray*}
 \start
-
       |lcbr(
         g 0 = 1
   )(
-        g(n+1) = a ∗ g a b c n + b ∗ h a b c n + c ∗ f a b c n
+        g(n+1) = a * g a b c n + b * h a b c n + c * f a b c n
   )|
       |lcbr(
         h 0 = 1
   )(
         h (n+1) = g n
   )|
-
       |lcbr(
         f 0 = 0
   )(
         f (n+1) = h n
   )|
-
 %
-\just\equiv{ Coprodut laws (Eq-x, ...) }
-%
+\end{eqnarray*}
 
 \begin{spec}
       f a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
-\end{spec}   
-
-
-\end{eqnarray*}
+\end{spec} 
 
 Diagrama da função loop:
 \begin{eqnarray*}
@@ -1233,6 +1234,7 @@ loop a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)
 \end{spec}
 
 \textbf{Valorização}
+
 \begin{code}
 testa a b c = map (fbl a b c) x where x = [1..20]
 testb a b c = map (f a b c) x where x = [1..20]  
@@ -1295,48 +1297,71 @@ funAux l (s,n) | p2(head(last(l))) < n = addLast (s,n) l
                | otherwise = l ++ [[(s,n)]]
 \end{code}
 
-A seguir está um exemplo para melhor compreensão:
+A seguir está um exemplo para melhor compreensão
 
-funAux 
+Se passarmos a matriz como argumento
+\begin{spec}
+[
+  [
+    ("General and References", 0),("    Document Types", 4), 
+    ("        Surveys and overviews", 8),  ("        Reference works",8)
+  ]
+]
+\end{spec}
 
-[ 
+e o par 
+\begin{spec}
+("        General conference proceedings", 8) 
+\end{spec}
 
-  [("General and References", 0),("    Document Types", 4), ("        Surveys and overviews", 8),  ("        Reference works",8)]
+o resultado final será:
+\begin{spec}
+[
+  [
+    ("General and References", 0),("    Document Types", 4), 
+    ("        Surveys and overviews", 8),  ("        Reference works",8), 
+    ("        General conference proceedings", 8)
+  ]
+]
+\end{spec}
 
-]\begin{eqnarray*}
+Outro exemplo: 
+
+A matriz fornecida é:
+\begin{spec}
+[
+  [
+    ("Document Types", 0), ("    Surveys and overviews", 4),  
+    ("    Reference works",4), ("    General conference proceedings", 4)
+  ]
+]
+\end{spec}
+
+e o par é:
+\begin{spec}
+("Cross-computing tools and techniques", 0) 
+\end{spec}
+
+Resultado:
+\begin{spec}
+[
+  [
+    ("Document Types", 0), ("    Surveys and overviews", 4),  
+    ("    Reference works",4), (    "General conference proceedings", 4)
+  ],
+  [
+    ("Cross-computing tools and techniques", 0)
+  ]
+]
+\end{spec}
+
+
+\begin{eqnarray*}
 \xymatrix{
   (S^*)^* & & S + S \times (S^*)^*\ar[ll]_{gene}\\
   Exp S S \ar[u]^{post}\ar[rr]_{outExp} & & S + S \times (S^*) \ar[u]_{id + id \times post}
 }
 \end{eqnarray*}
-
-("        General conference proceedings", 8)
-
-[ 
-
-  [("General and References", 0),("    Document Types", 4), ("        Surveys and overviews", 8),  ("        Reference works",8), ("        General conference proceedings", 8)]
-
-]
-
-Outro exemplo: 
-
-funAux 
-
-[ 
-
-  [("Document Types", 0), ("    Surveys and overviews", 4),  ("    Reference works",4), ("    General conference proceedings", 4)]
-
-]
-
-("Cross-computing tools and techniques", 0)
-
-[ 
-
-  [("Document Types", 0), ("    Surveys and overviews", 4),  ("    Reference works",4), (    "General conference proceedings", 4)],
-  [("Cross-computing tools and techniques", 0)]
-
-]
-
 
 Os resultados dos seguintes testes estão corretos.
 \begin{code}
@@ -1351,10 +1376,8 @@ fun :: [String] -> [[String]]
 fun = map (map (\(s,n) -> drop 4 s)) . foldl funAux [] . map (\s -> (s,contaEspacos s))
 \end{code}
 
-
-
-
 O gene é facilmente retirado do diagrama apresentado no enunciado.
+
 \begin{eqnarray*}
 \xymatrix{
 S^* \ar[r]^{out} \ar[rd]^{gene} & S + S \times S^*\ar[d]^{id + (id \times fun)}\\
@@ -1364,8 +1387,6 @@ S^* \ar[r]^{out} \ar[rd]^{gene} & S + S \times S^*\ar[d]^{id + (id \times fun)}\
 \begin{code}
 gene = (id -|- (id >< fun)) . outP2
 \end{code}
-
-
 
 Função de pós-processamento:
 \begin{code}
