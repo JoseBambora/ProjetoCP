@@ -1124,7 +1124,7 @@ Após analisar o contexto do problema apresentado, concluímos que se trata de u
   f a b c 0 = 0 
   f a b c 1 = 1
   f a b c 2 = 1
-  f a b c (n +3) = a * f a b c (n+2) + b * f a b c (n+1) + c * f a b c n
+  f a b c (n+3) = a * f a b c (n+2) + b * f a b c (n+1) + c * f a b c n
 \end{spec}
 
 O problema pede então que seja aplicada a seguinte regra:
@@ -1138,6 +1138,7 @@ f(n+1) = fib n + f n
 \end{spec}
 
 Onde iremos obter o seguinte:
+
 \begin{spec}
 fib' = p1 . for loop init where
   loop(fib,f) = (f,fib+f)
@@ -1148,7 +1149,7 @@ Deste modo podemos concluir o seguinte:
 
 \begin{itemize}
   \item O ciclo loop irá ter tantos argumentos quanto o número de funções mutuamente exclusivas. Neste caso serão 3 argumentos, pois temos 3 termos inciais.
-  \item As funções serão respetivamente, f,h e g.
+  \item As funções serão respetivamente, g,h e f.
   \item Em init usam se os resultados dos casos base respetivamente, ((1,1),0).
 \end{itemize}
 
@@ -1158,58 +1159,110 @@ E é nos apresentado o que devemos resolver:
 fbl a b c = wrap ·for (loop a b c) initial
 \end{spec}
 
-Começamos com a variável "initial", que vai ser definida por ((1,1),0), porque são os valores dos resultados iniciais dos coeficientes da sequência númerica, definidos no enunciado, que correspondem
-às funções também definidas incialmente ((g,h),f).
+As funções f, h e g que levantamos foram as seguintes:
+
+\begin{spec}
+g 0 = 1
+g (n+1) = c1 ((g n, h n), f n)
+
+h 0 = 1
+h (n+1) = g n
+h (n+1) = c2 ((g n, h n), f n)
+
+f 0 = 0
+f (n+1) = h n
+f (n+1) = c3 ((g n, h n), f n)
+\end{spec}
+
+Como h (n+1) = g (n), c2 = (p1.p1) e como f(n+1) = h(n), c3 = (p2.p1).
+
+Destas nossas funções a f é a função principal, sendo que esta pode ser traduzida para a seguinte
+forma:
+\begin{spec}
+f 0 = 0
+f n = (p2.p1) ((f (n+1), f n), f (n-1))
+\end{spec}
+
+Ou seja, em cada instante temos o resultado da função relativamente à 
+etapa anterior, à etapa atual e à etapa seguinte. É desta forma que evitamos
+calcular novamente as mesmas coisas.
+
+Casos base:
+\begin{itemize}
+  \item f(0) = 0
+  \item f(1) = (p2.p1) ((g 0, h 0), f 0) = (p2.p1) ((1,1),0) = 1
+  \item f(2) = (p2.p1) ((g 1, h 1), f 1) = (p2.p1) ((?,g 0), h 0) =  (p2.p1) ((?,1),1) = 1
+\end{itemize}
+
+Agora falta-nos apenas definir c1.
+
+Partindo da definição da função, conseguimos reparar que ela utiliza o resultado das 3 etapas anteriores,
+Ora bem nós de certa forma já temos isso, como demonstado no seguinte esquema:
+\begin{eqnarray*}
+\start
+      g\ (n+1) = c1\ ((g\ n,\ h\ n),\ f\ n)
+      \just\equiv{subsituindo n+1 por n+3}
+      g\ (n+3) = c1\ ((g\ (n+2),\ h\ (n+2)),\ f\ (n+2)) 
+      \just\equiv{subsituindo f e h por g}
+      g\ (n+3) = c1\ ((g\ (n+2),\ g\ (n+1)),\ g\ (n))
+%
+\end{eqnarray*}
+
+Ou seja c1, acaba por ser uma simples função visto que nós já temos esses tais resultados.
+Para isso basta aplicar as operações aritméticas aos resultados já obtidos.
+
+Partindo princípio que queremos manter os resultados de (g (n+2), g (n+1)), esses elementos aplicamos
+simplesmente umas funções de translação (c2 e c3) para a direita. 
+O resultado de g(n) é apenas utilizado para o calculo de g (n+3) e posteriormente é deitado "fora".
+
+Como a, b e c são parâmetros da função, a definição de c1 é:
+\begin{spec}
+add . (add >< id) . (((a*) >< (b*)) >< (c*))
+\end{spec}
+
+Sendo assim o nosso sistema de equações ficou:
+\begin{eqnarray*}
+\start
+      |lcbr
+      (g 0 = 1)
+      (g (n+1) = (add . (add >< id) . (((a*) >< (b*)) >< (c*))) ((g n, h n), f n))
+      |
+\end{eqnarray*}
+\begin{eqnarray*}
+\start
+      |lcbr
+      (h 0 = 1)
+      (h (n+1) = (p1.p1) ((g n, h n), f n))
+      |
+      |lcbr
+      (f 0 = 1)
+      (f (n+1) = (p2.p1) ((g n, h n), f n))
+      |
+%
+\end{eqnarray*}
+
+Primeiramente vamos multiplicar a, b e c pelo respetivo resultado, e depois posteriormente
+só são aplicadas adições dos resultados das tais multilicações.
+
+Com isto, concluimos que a variável "initial", que vai ser definida por ((1,1),0), 
+porque são os valores dos resultados iniciais dos coeficientes da sequência númerica, 
+definidos no enunciado, que correspondem às funções também definidas inicialmente ((g,h),f).
 
 \begin{code}
 initial = ((1,1),0)
 \end{code}
 
 De seguida definimos a função "wrap", que tem como funcionalidade ir buscar o segundo par de \textbf{for (loop a b c) initial}:
+
 \begin{code}
 wrap = p2
 \end{code}
 
-Por fim deduzimos a função "loop" atraves de leis de coprodutos e obtivemos o seguinte:
+Por fim deduzimos a função "loop" simplesmente juntando c1, c2 e c3 numa única operação:
 
 \begin{code}
 loop a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
 \end{code}   
-
-Funções auxiliares:
-
-\begin{spec}
-g 0 = 1
-g (n+1) = a ((g n, h n), f n)
-
-h 0 = 1
-h (n+1) = b ((g n, h n), f n)
-
-f 0 = 0
-f (n+1) = c ((g n, h n), f n)
-\end{spec}
-
-Dedução da função loop:
-
-\begin{eqnarray*}
-\start
-      |lcbr(
-        g 0 = 1
-  )(
-        g(n+1) = a * g a b c n + b * h a b c n + c * f a b c n
-  )|
-      |lcbr(
-        h 0 = 1
-  )(
-        h (n+1) = g n
-  )|
-      |lcbr(
-        f 0 = 0
-  )(
-        f (n+1) = h n
-  )|
-%
-\end{eqnarray*}
 
 \begin{spec}
       f a b c = split (split (add . (add >< id) . (((a*) >< (b*)) >< (c*))) (p1.p1)) (p2.p1)
