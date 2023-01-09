@@ -1196,8 +1196,9 @@ Casos base:
 
 Agora falta-nos apenas definir c1.
 
-Partindo da definição da função, conseguimos reparar que ela utiliza o resultado das 3 etapas anteriores,
+Partindo da definição da função, conseguimos reparar que ela utiliza o resultado das 3 etapas anteriores.
 Ora bem nós de certa forma já temos isso, como demonstado no seguinte esquema:
+
 \begin{eqnarray*}
 \start
       g\ (n+1) = c1\ ((g\ n,\ h\ n),\ f\ n)
@@ -1211,8 +1212,9 @@ Ora bem nós de certa forma já temos isso, como demonstado no seguinte esquema:
 Ou seja c1, acaba por ser uma simples função visto que nós já temos esses tais resultados.
 Para isso basta aplicar as operações aritméticas aos resultados já obtidos.
 
-Partindo princípio que queremos manter os resultados de (g (n+2), g (n+1)), esses elementos aplicamos
-simplesmente umas funções de translação (c2 e c3) para a direita. 
+Partindo do princípio que queremos manter os resultados de (g (n+2), g (n+1)), 
+para ambos os elementos aplicamos umas funções de translação dentro do par ((\_,\_),\_)
+para a direita. Essas funções de translação são c2 e c3 respetivamente.
 O resultado de g(n) é apenas utilizado para o calculo de g (n+3) e posteriormente é deitado "fora".
 
 Como a, b e c são parâmetros da função, a definição de c1 é:
@@ -1564,14 +1566,21 @@ present = sequence . map(\l -> do {(drawSq l); await;})
 \end{code}
 \subsection*{Problema 4}
 \subsubsection*{Versão não probabilística}
-O gene de |consolidate'| é:
+
+Este exercício quatro podemos dizer que é um exercício que engloba todos os objetivos da disciplina,
+desde o uso de catamorfismos, anamorfismos, hilomofismos, monads, reutilização de código e nos casos
+em que é possível, definir funções polimorficas e point-free.
+
+Começando pelo ínicio. Foi nos pedido que definissemos o gene de |consolidate'| e 
+chegamos à seguinte solução:
 
 \begin{code}
 cgene :: (Num b, Eq a) => Either () ((a, b), [(a, b)]) -> [(a, b)] 
 cgene = either (nil) (funCgene)
 \end{code}
 
-A funCgene é definida da seguinte maneira:
+A função auxiliar funCgene é definida da seguinte maneira:
+
 \begin{code}
 funCgene :: (Eq a, Num b) => ((a,b),[(a, b)]) -> [(a, b)]
 funCgene arg = case lu of
@@ -1582,26 +1591,31 @@ funCgene arg = case lu of
     esq = (p1 . p1) arg
 \end{code}
 
-A nossa ideia com a funCgene foi primeiramente verificar se uma determinada "chave"
-existia numa lista de tuplos e se sim, qual era o valor associado. Para isso tivemos
-recurso à lookup definida no modulo List.hs . A função lookup desse modulo recebe a chave
-e a lista sem ser sub a forma de par. Devido a isso usamos a função uncurry.
-
+Esta função funCgene vai primeiramente verificar se uma determinada "chave" exista numa 
+lista de tuplos e se sim, qual era o valor associado. 
+Para isso tivemos recurso à função lookup definida no modulo List.hs . 
+Esta função lookup recebe a chave e a lista sem ser sub a forma de par. 
+Devido a isso usamos a função uncurry.
 Após esta fase temos 2 hipoteses, ou a chave foi encontrada e temos Just e o valor associado, 
 ou não foi encontrada e temos Nothing. 
 
-Se tivermos Nothing o que esta função faz é invocar a função cons definida em Cp.hs e damos como 
-argumento o par recebido. 
+Se tivermos Nothing o que esta função faz é invocar a função cons definida em Cp.hs e vai simplesmente
+adicionar o elemento à esquerda do par dado como argumento à cabeça da lista que está
+à direita do par dado como argumento. 
 
-Caso o valor tenha sido encontrado, então vamos aplicar uma função à esquerda e uma função
-à direita no par recebido como argumento. À esquerda, mantemos a chave e aumentamos uma certa 
-quantia no valor. Essa quantia foi o valor encontrado pela função lookup. 
-Como nós não queremos ter chaves repetidas, ao lado esquerdo simplesmente invocamos a 
-função filter para eliminar o elemento com a tal chave encontrado pela função lookup. 
+Caso o valor tenha sido encontrado, então vamos aplicar primeiramente uma função à esquerda 
+e uma função à direita no par recebido como argumento. 
 
-Após estas duas operações é invocada a função cons definida no modulo Cp.hs .
+A função aplicado ao par do lado esquerdo, simplesmente aumento um certo valor ao número que está 
+à direita desse par. Essa quantia será valor encontrado pela função lookup. 
+Como nós não queremos ter chaves repetidas, a função do lado direito irá evitar isso mesmo.
+Para isso invoca a função filter já definida np prelude, de forma a eliminar o elemento 
+com a tal chave encontrado pela função lookup. 
 
-A função pairup definimos da seguinte forma:
+Após estas duas operações é invocada a função cons definida no modulo Cp.hs que irá fazer a mesma operação
+que no caso da função Lookup retornar Nothing.
+
+Partindo para a função pairup, esta ficou definida da seguinte forma:
 
 \begin{code}
 pairup = (either (nil) (fun) . outList)
@@ -1620,6 +1634,12 @@ A nossa função pairup pode ser representada da seguinte forma:
 }
 \end{eqnarray*}
 
+A função auxiliar fun, simplesmente invoca a chamada recursiva da função pairup à cauda da lista
+e invoca a função fun2. Por final, faz a concatenação dos dois resultados.
+
+Nesta função fun, não utilizamos a catamorfismo devido a que fun2 precisa da cauda original recebida como
+argumento.
+
 O diagrama da nossa função auxiliar fun, é o seguinte:
 
 \begin{eqnarray*}
@@ -1633,7 +1653,7 @@ originando uma lista com tuplos das respetivas associações.
 A nossa função |fun2| simplesmente um elemento a cada um dos elementos de uma lista, originando 
 na mesma tuplos.
 
-Passando para a função, matchResult, numa primeira abordargem defimos a matchResult da seguinte forma:
+Passando para a função matchResult, numa primeira abordargem defimos a matchResult da seguinte forma:
 
 \begin{spec}
     matchResult f p = [(e1,pontos1),(e2,pontos2)]
@@ -1641,8 +1661,8 @@ Passando para a função, matchResult, numa primeira abordargem defimos a matchR
       e1 = p1 p
       e2 = p2 p
       result = f p
-      pontos1 = getpontuacao result e1
-      pontos2 = getpontuacao result e2
+      pontos1 = getpontuacao (e1,result)
+      pontos2 = getpontuacao (e2,result)
 \end{spec}
 
 Esta função é bastante simples, mas não trabalha como uma função de point free.
@@ -1671,7 +1691,7 @@ getPointsMatch = conc . (fmr >< fmr) . split (p1 >< id) (p2 >< id)
 
 \end{code}
 
-Um diagrama como a função matchResult, junto com a getPointsMatch funcionam em conjunto:
+Um diagrama a demonstrar como é que a função matchResult e a getPointsMatch funcionam em conjunto:
 
 \begin{eqnarray*}
 \xymatrix{
@@ -1689,13 +1709,14 @@ A função fmr é representada da seguinte forma:
 }
 \end{eqnarray*}
 
-Passaremos a explicar cada passo desta nossa função matchResult. Primeiramente a nossa função 
+Passaremos a explicar cada passo esta nossa função matchResult. Primeiramente a nossa função 
 pega na função recebida como argumento e aplica à partida em questão. De forma a não perder quais
 as equipas que jogaram, é originado o par (Partida, Resultado) ou ((Equipa 1, Equipa 2), Resultado).
+
 A etapa seguinte é tentar organizar este tuplo em (equipa,resultado). Para isto utilizamos mais uma
-vez a função split que transforma o par ((Equipa 1, Equipa 2), Resultado) no par 
-((Equipa 1, Resultado), (Equipa 2, Resultado)). Quisemos organizar assim para ser mais
-fácil a utilização da nossa função getpontuacao. Após isto invocamos a função fmr que que 
+vez a função split cujas funções fornecedias, transformam par ((Equipa 1, Equipa 2), Resultado) 
+em  ((Equipa 1, Resultado), (Equipa 2, Resultado)). Quisemos organizar assim para tornar mais
+fácil a utilização da nossa função getpontuacao. Após isto invocamos a função fmr que 
 transforma o último par em ([(Equipa 1, Pontuação 1)], [(Equipa 2, Pontuação 1)]), utilizando
 a função getpontuacao como auxiliar. Após esta fase basta apenas adaptar o tipo deste resultado para 
 o pretendido que é [(Equipa 1, Pontuação 1), (Equipa 2, Pontuação 1)]. Para isso basta invocar 
@@ -1712,7 +1733,10 @@ Passando para a função glt, o diagrama da nossa função glt é o seguinte:
 A nossa função glt, quando recebe uma lista com apenas um único elemento, injeta esse mesmo
 elemento à esquerda numa alternativa. Caso contrário, invoca a função |splitAt| do prelude do 
 Haskell. Esta função necessita de um indice para separar a lista. Este indice neste exercício 
-será sempre o meio da lista.
+será sempre o meio da lista. Esta função, utiliza a função outP2 definida no exercicio 2, pois
+esta função já organiza a lista da forma como nós pretendemos.
+
+A definição point-free que chegamos da função glt é a seguinte:
 
 \begin{code}
 glt = (id -|- ((uncurry splitAt) . split (metade . length) (id) . cons)) . outP2
@@ -1721,7 +1745,9 @@ glt = (id -|- ((uncurry splitAt) . split (metade . length) (id) . cons)) . outP2
 \end{code}
 
 \subsubsection*{Versão probabilística}
+
 Implementamos a função pinitKnockoutStage da seguinte forma:
+
 \begin{code}
 pinitKnockoutStage :: [[Team]] -> Dist (LTree Team)
 pinitKnockoutStage = cataLTree (either createDist tupleDist) . initKnockoutStage
@@ -1732,17 +1758,19 @@ pinitKnockoutStage = cataLTree (either createDist tupleDist) . initKnockoutStage
 
 Esta função primeiramente invoca a função initKnockoutStage definida já na versão não probabilística.
 
-Após isto nós obtemos uma LTree já com as partidas formadas. Agora basta apenas iniciar 
+Após isto nós obtemos uma LTree já com as partidas formadas, bastando apenas iniciar 
 as probabilidades.
 
-Para isto usamos a cataLTree defina no module LTree.hs. Esta função para as folhas,
-cria a distribuição com probabilidade igual a 100\%. Como os nodos são apenas 1 equipa,
-a probabilidade de elas mesmas "ganharem" é 100\%, dai atribuirmos essa probabilidade.
+Para isto usamos a cataLTree defina no module LTree.hs. 
 
-Para os nodos Fork, é aplicada a função tupleDist. Esta função cria o Fork, pois a cataLTree
+Este catamorfismo para as folhas, cria a distribuição com probabilidade igual a 100\%. 
+Como as folhas representam apenas uma equipa, a probabilidade de elas mesmas "vencerem" é 100\%, 
+dai atribuirmos essa probabilidade.
+
+Para os nodos Fork, é aplicada a função tupleDist. Esta função irá criar um Fork, pois a cataLTree
 "destroi" a LTree e é necessário contrui-la outra vez. Depois disso, como as subarvores são
 distribuição de LTree, precisamos de utilizar a função joinWith definida em Probability.hs 
-de forma a criar as combinações das distribuições.
+de forma a criar as combinações das distribuições, para criar uma LTree de probabilidades.
 
 Um esquema a demonstrar como esta função funciona:
 
@@ -1761,10 +1789,11 @@ pgroupWinners :: (Match -> Dist (Maybe Team)) -> [Match] -> Dist [Team]
 pgroupWinners f = pmatchResult . split (sequence . map (\m -> (f m))) (id)
 \end{code}
 
-Esta função primeiramente gera as probabilidade do resultado de todas as partidas e de seguida invoca
-a função pmatchResult.
+Esta função primeiramente gera as probabilidade do resultado de todas as partidas e de seguida 
+invoca a função pmatchResult.
 
 A função pmatchResult está implementada assim:
+
 \begin{code}
 getPoints :: ([Match],[Maybe Team]) -> [(Team,Integer)]
 getPoints =  cataList (either (nil) (conc . (getPointsMatch >< id))) . uncurry zip
@@ -1773,18 +1802,23 @@ pmatchResult :: (Dist [Maybe Team],[Match]) -> Dist [Team]
 pmatchResult (resultados,partidas) = mapD (best 2 . consolidate . getPoints . split (const partidas) (id)) resultados
 \end{code}
 
-A função pmatchResult usa como função auxiliar getPoints. Esta função getPoints é praticamente 
-igual à função getPointsMatch, até que não é por acaso que a utiliza. 
-A diferença está nos argumentos, em que getPointsMatch recebe um tuplo (Match, Maybe Team) e 
-getPoints recebe ([Match],[Maybe Team]).
+A função pmatchResult usa como função auxiliar getPoints. 
+
+Esta função getPoints é praticamente igual à função getPointsMatch pois a ideia para ambas é a mesma.
+A getPointsMatch foi definida na parte não probabilística. 
+A principal diferença entre estas duas funções está nos argumentos, em que getPointsMatch 
+recebe um tuplo (Match, Maybe Team) e getPoints recebe ([Match],[Maybe Team]).
  
 A função pmatchResult simplesmente aplica uma sequência de funções às probabilidades
 geradas na função pgroupWinners. Primeiramente é gerado o tuplo ([Match],[Maybe Team])
 para usarmos a função getPoints. Depois invocamos a função já definida previamente pela equipa
 docente, a consolidate, de forma a obtermos as pontuações finais de cada equipa no final do grupo.
-Depois invocamos mais uma vez uma função já previamente definida, a best, que vai buscar a n melhores
-equipas em cada grupo. Para aplicar estas funções às probabilidades, utilizamos a função
-mapD que aplica uma certa função ao conteúdo de uma distribuição.
+Depois invocamos a best, que também foi definida pela equipa docente. A best vai buscar a n 
+melhores equipas em cada grupo, neste caso, as 2 melhores. 
+Para aplicar estas funções às probabilidades, utilizamos a função mapD que tal como um map,
+aplica uma certa função ao seu conteudo, só que em vez de ser para lista, é para a distribuição.
+
+\textbf{Valorização}
 
 A pedido da equipa docente vamos testar as funções pwinner e winner para rankings diferentes.
 
@@ -1825,6 +1859,7 @@ rankings = [
          ("Uruguay",4.5),
          ("Wales",4.3)]
 \end{spec}
+
 O resultado da execução de winner foi:
 
 \begin{spec}
@@ -1860,7 +1895,7 @@ O resultado da execução de pwinner foi:
 
 \end{spec}
 
-Tendo em conta o nosso novo ranking, os resultados são os esperados.
+Tendo em conta o nosso ranking, os resultados apresentados são os esperados.
 
 %----------------- Índice remissivo (exige makeindex) -------------------------%
 
