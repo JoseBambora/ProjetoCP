@@ -1813,6 +1813,35 @@ glt = (id -|- ((uncurry splitAt) . split (metade . length) (id) . cons)) . outP2
 
 \subsubsection*{Versão probabilística}
 
+A primeira abordagem que tivemos foi encontrar o tipo da função pinitKnockoutStage.
+
+Relativamente ao tipo do resultado, basta pegar no tipo de initKnockoutStage e adicionar
+a parte das probabilidades, isto é, Dist (LTree Team).
+
+O problema encontra-se agora no tipo de encontrada.
+
+Nós reparamos que a função vai ser invocada na seguinte função:
+
+\begin{spec}
+pgroupStage = pinitKnockoutStage .! psimulateGroupStage . genGroupStageMatches
+\end{spec}
+
+Ora bem, nós já sabemos que o tipo da função definida pela equipa docente psimulateGroupStage
+é : psimulateGroupStage :: [[Match]] -> Dist [[Team]]].
+
+Então desenvolvemos o seguinte:
+
+\begin{eqnarray*}
+\start
+      |pinitKnockoutStage .! psimulateGroupStage . genGroupStageMatches|
+      \just\equiv{Associatividade 69}
+      |pinitKnockoutStage .! (psimulateGroupStage . genGroupStageMatches)|
+      \just\equiv{Composição monádica 86}
+      |do {b <- (psimulateGroupStage . genGroupStageMatches); pinitKnockoutStage b}|
+\end{eqnarray*}
+
+Ou seja, pinitKnockoutStage recebe uma lista de listas de equipas ([[Team]]).
+
 Implementamos a função pinitKnockoutStage da seguinte forma:
 
 \begin{code}
