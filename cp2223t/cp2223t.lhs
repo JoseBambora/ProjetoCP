@@ -161,13 +161,13 @@
 \begin{tabular}{ll}
 Grupo nr. & 12
 \\\hline
-a94913 & José Manuel Antunes de Carvalho
+94913 & José Manuel Antunes de Carvalho
 \\
-a97031 & Miguel Filipe Cidade da Silva 
+97031 & Miguel Filipe Cidade da Silva 
 \\
-a96351 & Luis Alberto Barreiro Araújo
+96351 & Luis Alberto Barreiro Araújo
 \\
-a92926 & Marisa Ferreira Soares
+92926 & Marisa Ferreira Soares
 \end{tabular}
 \end{center}
 
