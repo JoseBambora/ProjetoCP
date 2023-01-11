@@ -10,8 +10,8 @@
 
 %================= lhs2tex=====================================================%
 %include polycode.fmt
+%format succ = "succ "
 %format (div (x)(y)) = x "\div " y
-%format succ = "\succ "
 %format ==> = "\Longrightarrow "
 %format map = "\map "
 %format length = "\length "
@@ -1153,6 +1153,55 @@ Deste modo podemos concluir o seguinte:
   \item Em init usam se os resultados dos casos base respetivamente, ((1,1),0).
 \end{itemize}
 
+% format n consigo por a represetnaçao do catamorfismo
+% format tmb acho q os splits n se representam assim, mas nao sei como por tbh, tp no livro q mandaste tem outro formato
+% tmb n sei colocar o underscore no 0
+% aparecem uns erros estranhos, mesmo ao compilar
+Como aplicamos a lei da recursiva mutua a este exercicio:
+
+\begin{eqnarray*}
+\start
+          |split (split (g)(h)) (f) = cataNat (split (split (j)(k)) (i))|
+%
+\just\equiv{ universal-cata }
+%
+          |split (split (g)(h)) (f) . in = split (split (j)(k)) (i) . F (split (split (g)(h)) (f)) |
+%
+\just\equiv{ fusão-x 2x }
+%
+          |split (split (g.in)(h.in)) (f.in) = split (split (j.F (split (split (g)(h)) (f)))(k.F (split (split (g)(h)) (f)))) (i.F (split (split (g)(h)) (f)))|
+%
+\just\equiv{ Eq-x }
+%
+        |lcbr3
+        (g . in = j . F (split (split (g)(h)) (f)))
+        (h . in = k . F (split (split (g)(h)) (f)))
+        (f . in = i . F (split (split (g)(h)) (f)))
+        |
+%
+\just\equiv{ definição de in; functor do naturais }
+%
+        |lcbr3
+        (g . (either (0) (succ)) = j . (id + split (split (g) (h)) (f)))
+        (h . (either (0) (succ)) = k . (id + split (split (g) (h)) (f)))
+        (f . (either (0) (succ)) = i . (id + split (split (g) (h)) (f)))
+        |
+%
+\just\equiv{ fusão-+; reflexão-+; eq-+; igualdade extencional; def-comp; def-split; def-x }
+%
+      |lcbr3
+      (lcbr
+          (g 0 = 1)
+          (g (n+1) = c1 ((g n, h n), f n)))
+      (lcbr
+          (h 0 = 1)
+          (h (n+1) = c2 ((g n, h n), f n)))
+      (lcbr
+        (f 0 = 0)
+        (f (n+1) = c3 ((g n, h n), f n)))
+      |
+\end{eqnarray*}
+
 E é nos apresentado o que devemos resolver:
 
 \begin{spec}
@@ -1225,21 +1274,19 @@ add . (add >< id) . (((a*) >< (b*)) >< (c*))
 Sendo assim o nosso sistema de equações ficou:
 \begin{eqnarray*}
 \start
-      |lcbr
+      |lcbr3
+      (lcbr
       (g 0 = 1)
       (g (n+1) = (add . (add >< id) . (((a*) >< (b*)) >< (c*))) ((g n, h n), f n))
-      |
-\end{eqnarray*}
-\begin{eqnarray*}
-\start
-      |lcbr
+      )
+      (lcbr
       (h 0 = 1)
       (h (n+1) = (p1.p1) ((g n, h n), f n))
-      |
-      |lcbr
+      )
+      (lcbr
       (f 0 = 1)
       (f (n+1) = (p2.p1) ((g n, h n), f n))
-      |
+      )|
 %
 \end{eqnarray*}
 
