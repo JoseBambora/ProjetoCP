@@ -1601,14 +1601,34 @@ lista com elementos de 0 até n.
 
 A função \textit{present} simplesmente aplica a função \textit{drawSq} para todos os elementos da lista gerada por \textit{carpets}, esperando depois 1 segundo graças à função \text{await}.
 
-\begin{code}
+Primeira abordagem, sem anamorfismos e catamorfismos:
+
+\begin{spec}
+
 carpets :: Int -> [[Square]]
 carpets n = map (\s -> (sierpinski (squareExemplo,s))) [0..n]
+
+present ::[[Square]] -> IO [()]
+present = sequence . map(\l -> do {(drawSq l); await;})
+
+\end{spec}
+
+Segunda abordagem, com anamorfismos e catamorfismos:
+
+\begin{code}
+outC :: Int -> Either Int (Int,Int)
+outC (-1) = i1 (-1)
+outC n = i2 (n,n-1)
+
+carpets :: Int -> [[Square]]
+carpets = anaList ((nil -|- ((curry (sierpinski) (squareExemplo)) >< id)) . outC)
 
 squareExemplo = ((0.0,0.0),32.0)
 
 present ::[[Square]] -> IO [()]
-present = sequence . map(\l -> do {(drawSq l); await;})
+present = sequence . cataList (either (nil) (cons . (dr >< id)))
+  where
+    dr l = do { (drawSq l); await; }
 
 \end{code}
 \subsection*{Problema 4}
