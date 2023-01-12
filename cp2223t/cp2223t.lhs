@@ -161,13 +161,13 @@
 \begin{tabular}{ll}
 Grupo nr. & 12
 \\\hline
-94913 & José Manuel Antunes de Carvalho
+a94913 & José Manuel Antunes de Carvalho
 \\
-97031 & Miguel Filipe Cidade da Silva 
+a97031 & Miguel Filipe Cidade da Silva 
 \\
-96351 & Luis Alberto Barreiro Araújo
+a96351 & Luis Alberto Barreiro Araújo
 \\
-92926 & Marisa Ferreira Soares
+a92926 & Marisa Ferreira Soares
 \end{tabular}
 \end{center}
 
@@ -1616,12 +1616,12 @@ present = sequence . map(\l -> do {(drawSq l); await;})
 Segunda abordagem, com anamorfismos e catamorfismos:
 
 \begin{code}
-outC :: Int -> Either Int (Int,Int)
-outC (-1) = i1 (-1)
+outC :: Int -> Either () (Int,Int)
+outC (-1) = i1 ()
 outC n = i2 (n,n-1)
 
 carpets :: Int -> [[Square]]
-carpets = anaList ((nil -|- ((curry (sierpinski) (squareExemplo)) >< id)) . outC)
+carpets = anaList ((id -|- ((curry (sierpinski) (squareExemplo)) >< id)) . outC)
 
 squareExemplo = ((0.0,0.0),32.0)
 
@@ -1631,6 +1631,33 @@ present = sequence . cataList (either (nil) (cons . (dr >< id)))
     dr l = do { (drawSq l); await; }
 
 \end{code}
+
+O esquema básico do anamorfismo \textit{carpets} é o seguinte:
+\begin{eqnarray}
+\xymatrix@@C=3cm{
+(Square^*)^* \ar@@/^1pc/[rr]^{|out|}  & \cong & 1 + ((Square^*) \times (Square^*))^* \ar@@/^1pc/[ll]^{|in|} \\
+Int \ar[u]^{carpets} \ar[r]_{outC} & 1 + (Int \times Int) \ar[r]_{id + ((curry (sierpinski) (squareExemplo)) \times id)} & 1 + Square^* \times Int \ar[u]_{id + id \times carpets}
+}
+\end{eqnarray}
+
+E o esquema básico do catamorfismo present é:
+\begin{eqnarray}
+\xymatrix@@C=3cm{
+IO [()]  & & \\
+[IO ()] \ar[u]^{sequence} & & 1 + Square^* \times [IO()] \ar[ll]_{(nil) + (cons . (dr \times id))} \\
+(Square^*)^* \ar@@/^1pc/[rr]^{|out|}  \ar[u]^{present} & \cong & 1 + ((Square^*) \times (Square^*))^* \ar@@/^1pc/[ll]^{|in|} \ar[u]_{id + id \times present} \\
+}
+\end{eqnarray}
+
+E assim o hilomorfismo \textit{constructSierp} tem o seguinte esquema:
+\begin{eqnarray}
+\xymatrix@@C=3cm{
+IO [()]  & & \\
+[IO ()] \ar[u]^{sequence} & & 1 + Square^* \times [IO()] \ar[ll]_{(nil) + (cons . (dr \times id))} \\
+(Square^*)^* \ar@@/^1pc/[rr]^{|out|}  \ar[u]^{present} & \cong & 1 + ((Square^*) \times (Square^*))^* \ar@@/^1pc/[ll]^{|in|} \ar[u]_{id + id \times present} \\
+Int \ar[u]^{carpets} \ar[r]_{outC} & 1 + (Int \times Int) \ar[r]_{id + ((curry (sierpinski) (squareExemplo)) \times id)} & 1 + Square^* \times Int \ar[u]_{id + id \times carpets}
+}
+\end{eqnarray}
 \subsection*{Problema 4}
 \subsubsection*{Versão não probabilística}
 
