@@ -1634,16 +1634,20 @@ present = sequence . cataList (either (nil) (cons . (dr >< id)))
 
 O esquema básico do anamorfismo \textit{carpets} é o seguinte:
 \begin{eqnarray}
-\xymatrix@@C=3cm{
-(Square^*)^* \ar@@/^1pc/[rr]^{|out|}  & \cong & 1 + ((Square^*) \times (Square^*))^* \ar@@/^1pc/[ll]^{|in|} \\
-Int \ar[u]^{carpets} \ar[r]_{outC} & 1 + (Int \times Int) \ar[r]_{id + ((curry (sierpinski) (squareExemplo)) \times id)} & 1 + Square^* \times Int \ar[u]_{id + id \times carpets}
+\xymatrix
+{
+(Square^*)^* \ar@@/^1pc/[rrrr]^{|out|} & & \cong & & 1 + ((Square^*) \times (Square^*))^* \ar@@/^1pc/[llll]^{|in|} \\
+Int \ar[u]^{carpets} \ar[rr]_{outC} & & 1 + (Int \times Int) \ar[rr]_{*} & & 1 + Square^* \times Int \ar[u]_{id + id \times carpets}
 }
 \end{eqnarray}
+\begin{spec}
+*: id + ((curry (sierpinski) (squareExemplo)) >< id)
+\end{spec}
 
 E o esquema básico do catamorfismo present é:
 \begin{eqnarray}
-\xymatrix@@C=3cm{
-IO [()]  & & \\
+\xymatrix{
+IO [()]\\
 [IO ()] \ar[u]^{sequence} & & 1 + Square^* \times [IO()] \ar[ll]_{(nil) + (cons . (dr \times id))} \\
 (Square^*)^* \ar@@/^1pc/[rr]^{|out|}  \ar[u]^{present} & \cong & 1 + ((Square^*) \times (Square^*))^* \ar@@/^1pc/[ll]^{|in|} \ar[u]_{id + id \times present} \\
 }
@@ -1651,13 +1655,17 @@ IO [()]  & & \\
 
 E assim o hilomorfismo \textit{constructSierp} tem o seguinte esquema:
 \begin{eqnarray}
-\xymatrix@@C=3cm{
+\xymatrix{
 IO [()]  & & \\
 [IO ()] \ar[u]^{sequence} & & 1 + Square^* \times [IO()] \ar[ll]_{(nil) + (cons . (dr \times id))} \\
 (Square^*)^* \ar@@/^1pc/[rr]^{|out|}  \ar[u]^{present} & \cong & 1 + ((Square^*) \times (Square^*))^* \ar@@/^1pc/[ll]^{|in|} \ar[u]_{id + id \times present} \\
-Int \ar[u]^{carpets} \ar[r]_{outC} & 1 + (Int \times Int) \ar[r]_{id + ((curry (sierpinski) (squareExemplo)) \times id)} & 1 + Square^* \times Int \ar[u]_{id + id \times carpets}
+Int \ar[u]^{carpets} \ar[r]_{outC} & 1 + (Int \times Int) \ar[r]_{*} & 1 + Square^* \times Int \ar[u]_{id + id \times carpets}
 }
 \end{eqnarray}
+\begin{spec}
+*: id + ((curry (sierpinski) (squareExemplo)) >< id)
+\end{spec}
+
 \subsection*{Problema 4}
 \subsubsection*{Versão não probabilística}
 
